@@ -11,9 +11,8 @@ app = FastAPI()
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     x = y = 0
-    last = 0
+    last = time.time()
     while True:
-        _curr = time.time()
 
         data = await websocket.receive_json()
 
@@ -30,8 +29,6 @@ async def websocket_endpoint(websocket: WebSocket):
             x += delta
 
         await websocket.send_json({"x": x, "y": y})
-        _last = time.time()
-        print(_last - _curr)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -13,12 +13,10 @@ window.onload = function () {
     }
 
     function render_ship(x, y) {
-        // clean_field();
+        clean_field();
         context.fillStyle = "#2c383c";
-        // context.fillRect(x, y, 10, 30)
-        context.beginPath();
-        context.arc(x, y, 10, 0, 2 * Math.PI);
-        context.fill();
+        context.fillRect(x, y, 10, 30)
+
     }
 
     socket.onmessage = function (event) {
