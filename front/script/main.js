@@ -5,15 +5,19 @@ window.onload = function () {
     var drawingCanvas = document.getElementById('screen');
     if (drawingCanvas && drawingCanvas.getContext) {
         context = drawingCanvas.getContext('2d');
+        clean_field()
     }
 
     function clean_field() {
         context.fillStyle = "#2a5d64";
         context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height)
     }
+    function unrender_ship(x, y) {
+        context.fillStyle = "#2a5d64";
+        context.fillRect(x-1, y-1, 12, 32)
 
+    }
     function render_ship(x, y) {
-        clean_field();
         context.fillStyle = "#2c383c";
         context.fillRect(x, y, 10, 30)
 
@@ -21,15 +25,23 @@ window.onload = function () {
 
     socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
-        render_ship(data['x'], data['y'])
+        data = data['players'];
+        for (var i=0; i<old_players.length; i++) {
+            unrender_ship(old_players[i]['x'], old_players[i]['y'])
+        }
+        for (var i=0; i<data.length; i++) {
+            render_ship(data[i]['x'], data[i]['y'])
+        }
+        old_players = data;
+
     };
 
     socket.onopen = function () {
         setInterval(function () {
             socket.send(JSON.stringify(movement))
-        }, 1000/60);
+        }, 100);
     };
-
+    var old_players = [];
     var movement = {
         up: false,
         down: false,

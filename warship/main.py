@@ -1,34 +1,45 @@
+import asyncio
 import time
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from starlette.websockets import WebSocket
 
-app = FastAPI()
+from warship.entities import Player
+from warship.game_state import GameState
 
+app = FastAPI()
+gl = GameState()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    x = y = 0
+    pl = Player()
+    pl.set_socket(websocket)
+    gl.add_player(pl)
     last = time.time()
     while True:
-
         data = await websocket.receive_json()
-
         curr = time.time()
-        delta = float((curr - last)) * 80
+        delta = float(curr - last)
         last = curr
-        if data['up']:
-            y -= delta
-        if data['down']:
-            y += delta
-        if data['left']:
-            x -= delta
-        if data['right']:
-            x += delta
+        pl.set_movement(data)
+        for player in gl.players:
+            if pl!=player and pl.collision(player):
+                break
+        else:
+            pl.next(delta)
+        pls = []
+        for player in gl.players:
+            pls.append(player.get_info())
+        for player in gl.players:
+            await player.socket.send_json({'players': pls})
 
-        await websocket.send_json({"x": x, "y": y})
+
+@app.on_event("startup")
+async def startup_event():
+    pass
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
