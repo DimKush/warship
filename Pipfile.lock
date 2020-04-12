@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "692e87e319f8926874edeac765c9b480d8437277705b7409869292ea41d040c9"
+            "sha256": "c0a541268db7d4fa6cc365bd080eb1b7cb49f83f6f63a850e8dbb3c1c3ffde1b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,11 +40,11 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:a5cb9100d5f2b5dd82addbc2cdf8009258bce45b03ba21d3f5eecc88c7b5a716",
-                "sha256:cf26d47ede6bc6e179df951312f55fea7d4005dd53370245e216436ca4e22f22"
+                "sha256:1ee9a49f28d510b62b3b51a9452b274853bfc9c5d4b947ed054366e2d49f9efa",
+                "sha256:72f40f47e5235cb5cbbad1d4f97932ede6059290c07e12e9784028dcd1063d28"
             ],
             "index": "pypi",
-            "version": "==0.53.2"
+            "version": "==0.54.1"
         },
         "h11": {
             "hashes": [
@@ -116,6 +116,12 @@
             "markers": "sys_platform != 'win32' and sys_platform != 'cygwin' and platform_python_implementation != 'PyPy'",
             "version": "==0.1.1"
         },
+        "mpmath": {
+            "hashes": [
+                "sha256:fc17abe05fbab3382b61a123c398508183406fa132e0223874578e20946499f6"
+            ],
+            "version": "==1.1.0"
+        },
         "pydantic": {
             "hashes": [
                 "sha256:012c422859bac2e03ab3151ea6624fecf0e249486be7eb8c6ee69c91740c6752",
@@ -141,6 +147,14 @@
                 "sha256:a9bb130fa7aa736eda8a814b6ceb85ccf7a209ed53843d0d61e246b380afa10f"
             ],
             "version": "==0.13.2"
+        },
+        "sympy": {
+            "hashes": [
+                "sha256:4880d3a351558063bd89febda302f220dc4b88de393bba81fa6539a3966f03fa",
+                "sha256:d77901d748287d15281f5ffe5b0fef62dd38f357c2b827c44ff07f35695f4e7e"
+            ],
+            "index": "pypi",
+            "version": "==1.5.1"
         },
         "uvicorn": {
             "hashes": [

@@ -19,6 +19,7 @@ window.onload = function () {
     function clean_field() {
         context.fillStyle = "#2a5d64";
         context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height)
+
     }
 
     function render_main_ship(x, y, r) {
@@ -29,24 +30,32 @@ window.onload = function () {
         context.fillRect(0, 0, 12, 32);
         context.restore();
     }
-
-    function render_ship(x, y, r) {
-        context.fillStyle = "#2c383c";
+    function point(x, y, canvas){
         context.save();
-        context.translate(x - 3, y + 16);
-        context.rotate(r * Math.PI / 180);
-        context.fillRect(+ 3, 0, 12, 32);
-        context.restore();
+        canvas.beginPath();
+        context.fillStyle = "rgb(52,251,6)";
+        canvas.arc(x, y, 1, 0, 2 * Math.PI, true);
+        canvas.fill();
+        canvas.restore();
     }
+    function render_bound_ship(x, y, r, bounds) {
 
-    function render_bound_ship(x, y, bounds) {
-        context.fillStyle = "rgba(37,133,88,1)";
+        context.save();
+        context.translate(x, y);
+        context.rotate(r * Math.PI / 180);
+        var img = new Image();
+        img.src = "img/main_ship.png";
+        context.drawImage(img, -15, 0, 30, 100);
+        context.restore();
+
+        context.fillStyle = "rgba(133,0,5,0.61)";
         context.beginPath();
         context.moveTo(bounds[0][0], bounds[0][1]);
         bounds.forEach((elem) => {
             context.lineTo(elem[0], elem[1]);
         });
         context.fill();
+        point(x, y, context)
     }
 
 
@@ -57,13 +66,12 @@ window.onload = function () {
         } else {
             clean_field();
             data.forEach((elem) => {
-                if (elem.id == player_id) {
-                    render_main_ship(elem.x, elem.y, elem.r);
-                } else {
-                    render_ship(elem.x, elem.y, elem.r);
-
-                }
-                render_bound_ship(elem.x, elem.y, elem.bounds)
+                // if (elem.id == player_id) {
+                //     render_main_ship(elem.x, elem.y, elem.r);
+                // } else {
+                //     render_ship(elem.x, elem.y, elem.r);
+                // }
+                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds)
             });
 
         }
