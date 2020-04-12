@@ -39,6 +39,17 @@ window.onload = function () {
         context.restore();
     }
 
+    function render_bound_ship(x, y, bounds) {
+        context.fillStyle = "rgba(37,133,88,1)";
+        context.beginPath();
+        context.moveTo(bounds[0][0], bounds[0][1]);
+        bounds.forEach((elem) => {
+            context.lineTo(elem[0], elem[1]);
+        });
+        context.fill();
+    }
+
+
     socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
         if (typeof data.player_id === "string") {
@@ -50,7 +61,9 @@ window.onload = function () {
                     render_main_ship(elem.x, elem.y, elem.r);
                 } else {
                     render_ship(elem.x, elem.y, elem.r);
+
                 }
+                render_bound_ship(elem.x, elem.y, elem.bounds)
             });
 
         }
