@@ -20,7 +20,7 @@ async def websocket_endpoint(websocket: WebSocket):
     player = app.state.gl.add_player()
     while True:
         data = await websocket.receive_json()
-        ahead = angle = 0
+        ahead = angle = shot = 0
         if data['up']:
             ahead = 1
         if data['down']:
@@ -29,6 +29,9 @@ async def websocket_endpoint(websocket: WebSocket):
             angle = 1
         if data['left']:
             angle = -1
+        if data['shot']:
+            shot = 1
+        player.set_shot(shot)
         player.set_moving(angle, ahead)
 
 

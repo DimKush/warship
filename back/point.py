@@ -1,5 +1,15 @@
 from math import pi
 
+from json import JSONEncoder
+
+
+class PointEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Point):
+            return obj.x, obj.y
+        else:
+            return JSONEncoder.default(self, obj)
+
 
 class Point:
     def __init__(self, x=0, y=0):
@@ -16,10 +26,16 @@ class Movement:
 
     def set_next(self, time: float):
         if self.moving == 0:
-            self.curr = 0
-        else:
-            new_curr = self.delta * self.moving
+            if self.curr > 0:
+                self.curr -= self.delta
+            elif self.curr < 0:
+                self.curr += self.delta
+        elif self.moving == 1:
+            new_curr = self.curr + self.delta * self.moving
             self.curr = self.max if new_curr >= self.max else new_curr
+        elif self.moving == -1:
+            new_curr = self.curr + self.delta * self.moving
+            self.curr = -self.max if new_curr <= -self.max else new_curr
 
     @property
     def current(self):
@@ -38,10 +54,6 @@ class AngleMovement(Movement):
             new_curr = self.delta * self.moving * pi / 180
             self.curr = self.max if new_curr >= self.max else new_curr
             self.angle_curr += self.curr
-
-    @property
-    def current(self):
-        return self.curr
 
     @property
     def angle_current(self):

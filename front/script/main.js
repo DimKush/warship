@@ -1,12 +1,13 @@
 var socket = new WebSocket("ws://0.0.0.0:8000/ws");
 var context;
-var movement = {
+var action = {
     up: false,
     down: false,
     left: false,
-    right: false
+    right: false,
+    shot: false
 };
-var last_movement = {};
+var last_action = {};
 var send_movement = false;
 var player_id = '';
 window.onload = function () {
@@ -30,7 +31,8 @@ window.onload = function () {
         context.fillRect(0, 0, 12, 32);
         context.restore();
     }
-    function point(x, y, canvas){
+
+    function point(x, y, canvas) {
         context.save();
         canvas.beginPath();
         context.fillStyle = "rgb(52,251,6)";
@@ -38,7 +40,8 @@ window.onload = function () {
         canvas.fill();
         canvas.restore();
     }
-    function render_bound_ship(x, y, r, bounds) {
+
+    function render_bound_ship(x, y, r, bounds, aabb) {
 
         context.save();
         context.translate(x, y);
@@ -55,6 +58,9 @@ window.onload = function () {
             context.lineTo(elem[0], elem[1]);
         });
         context.fill();
+        context.beginPath();
+        context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
+        context.stroke();
         point(x, y, context)
     }
 
@@ -71,7 +77,7 @@ window.onload = function () {
                 // } else {
                 //     render_ship(elem.x, elem.y, elem.r);
                 // }
-                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds)
+                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb)
             });
 
         }
@@ -84,27 +90,31 @@ window.onload = function () {
         evaluateMovement(event, false);
     });
 
-    function evaluateMovement(event, direction_flag) {
+    function evaluateMovement(event, action_flag) {
         switch (event.keyCode) {
             case 65: // A
-                movement.left = direction_flag;
+                action.left = action_flag;
                 break;
             case 87: // W
-                movement.up = direction_flag;
+                action.up = action_flag;
                 break;
             case 68: // D
-                movement.right = direction_flag;
+                action.right = action_flag;
                 break;
             case 83: // S
-                movement.down = direction_flag;
+                action.down = action_flag;
+                break;
+            case 32: // space
+                action.shot = action_flag;
                 break;
         }
-        if (!(last_movement.up === movement.up &&
-            last_movement.down === movement.down &&
-            last_movement.right === movement.right &&
-            last_movement.left === movement.left)) {
-            for (var key in movement) {
-                last_movement[key] = movement[key];
+        if (!(last_action.up === action.up &&
+            last_action.down === action.down &&
+            last_action.right === action.right &&
+            last_action.left === action.left &&
+            last_action.shot === action.shot)) {
+            for (var key in action) {
+                last_action[key] = action[key];
             }
             send_movement = true;
         }
@@ -113,7 +123,7 @@ window.onload = function () {
     socket.onopen = function () {
         setInterval(function () {
             if (send_movement) {
-                socket.send(JSON.stringify(movement));
+                socket.send(JSON.stringify(action));
                 send_movement = false;
             }
         }, 100);
