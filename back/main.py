@@ -29,7 +29,7 @@ async def websocket_endpoint(websocket: WebSocket):
             angle = 1
         if data['left']:
             angle = -1
-        player.set_delta(angle, ahead)
+        player.set_moving(angle, ahead)
 
 
 @app.on_event("startup")

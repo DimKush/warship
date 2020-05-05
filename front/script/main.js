@@ -42,10 +42,10 @@ window.onload = function () {
 
         context.save();
         context.translate(x, y);
-        context.rotate(r * Math.PI / 180);
+        context.rotate(r);
         var img = new Image();
         img.src = "img/main_ship.png";
-        context.drawImage(img, -15, 0, 30, 100);
+        context.drawImage(img, -15, -40, 30, 100);
         context.restore();
 
         context.fillStyle = "rgba(133,0,5,0.61)";
