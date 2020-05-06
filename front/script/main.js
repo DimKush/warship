@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://0.0.0.0:8000/ws");
+var socket = new WebSocket("ws://localhost:8000/ws");
 var context;
 var action = {
     up: false,
@@ -41,26 +41,34 @@ window.onload = function () {
         canvas.restore();
     }
 
-    function render_bound_ship(x, y, r, bounds, aabb) {
+    function render_bound_ship(x, y, r, bounds, aabb, type) {
 
         context.save();
         context.translate(x, y);
         context.rotate(r);
         var img = new Image();
-        img.src = "img/main_ship.png";
-        context.drawImage(img, -15, -40, 30, 100);
+        switch (type) {
+            case 'Main ship':
+                img.src = "img/main_ship.png";
+                context.drawImage(img, -15, -40, 30, 100);
+                break;
+            case 'Bullet':
+                img.src = "img/bullet.png";
+                context.drawImage(img, -6, -0, 12, 15);
+                break;
+        }
         context.restore();
 
         context.fillStyle = "rgba(133,0,5,0.61)";
-        context.beginPath();
-        context.moveTo(bounds[0][0], bounds[0][1]);
-        bounds.forEach((elem) => {
-            context.lineTo(elem[0], elem[1]);
-        });
-        context.fill();
-        context.beginPath();
-        context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
-        context.stroke();
+//        context.beginPath();
+//        context.moveTo(bounds[0][0], bounds[0][1]);
+//        bounds.forEach((elem) => {
+//            context.lineTo(elem[0], elem[1]);
+//        });
+//        context.fill();
+//        context.beginPath();
+//        context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
+//        context.stroke();
         point(x, y, context)
     }
 
@@ -77,7 +85,7 @@ window.onload = function () {
                 // } else {
                 //     render_ship(elem.x, elem.y, elem.r);
                 // }
-                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb)
+                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type)
             });
 
         }
@@ -132,7 +140,7 @@ window.onload = function () {
 };
 class Game {
     constructor() {
-        this.socket = new WebSocket("ws://0.0.0.0:8000/ws_red");
+        this.socket = new WebSocket("ws://localhost:8000/ws_red");
         this.context = null;
         this.movement = {
             up: false,

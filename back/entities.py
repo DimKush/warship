@@ -15,6 +15,7 @@ class Entity:
         self.tangible = True
         self.angle_motion = AngleMovement(curr_value=10, delta=1.3, max_value=40)
         self.vector_motion = Movement(curr_value=0, delta=1, max_value=100)
+        self.type = 'Object'
 
     @property
     def x(self):
@@ -75,7 +76,8 @@ class Entity:
                                       'y': self.y,
                                       'r': self.angle_motion.angle_current,
                                       'bounds': self.bounds,
-                                      'aabb': self.bounding_box
+                                      'aabb': self.bounding_box,
+                                      'type': self.type
                                       }, cls=PointEncoder))
 
 
@@ -94,7 +96,8 @@ class Player(Entity):
                                       'y': self.y,
                                       'r': self.angle_motion.angle_current,
                                       'bounds': self.bounds,
-                                      'aabb': self.bounding_box
+                                      'aabb': self.bounding_box,
+                                      'type': self.ship_model.name
                                       }, cls=PointEncoder))
 
     def set_shot(self, flag: int):
@@ -119,6 +122,7 @@ class Bullet(Entity):
         self.angle_motion = AngleMovement()
         self.angle_motion.moving = 1
         self.angle_motion.angle_curr = r
+        self.type = 'Bullet'
         new_bounds = []
         for point in self.bounds:
             x = self.x + (point.x - self.x) * cos(self.angle_motion.angle_curr) - (point.y - self.y) * sin(
