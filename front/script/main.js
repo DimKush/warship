@@ -54,21 +54,21 @@ window.onload = function () {
                 break;
             case 'Bullet':
                 img.src = "img/bullet.png";
-                context.drawImage(img, -6, -0, 12, 15);
+                context.drawImage(img, -6, -12, 12, 15);
                 break;
         }
         context.restore();
 
         context.fillStyle = "rgba(133,0,5,0.61)";
-//        context.beginPath();
-//        context.moveTo(bounds[0][0], bounds[0][1]);
-//        bounds.forEach((elem) => {
-//            context.lineTo(elem[0], elem[1]);
-//        });
-//        context.fill();
-//        context.beginPath();
-//        context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
-//        context.stroke();
+        context.beginPath();
+        context.moveTo(bounds[0][0], bounds[0][1]);
+        bounds.forEach((elem) => {
+            context.lineTo(elem[0], elem[1]);
+        });
+        context.fill();
+        context.beginPath();
+        context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
+        context.stroke();
         point(x, y, context)
     }
 

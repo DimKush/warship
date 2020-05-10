@@ -13,8 +13,8 @@ class Entity:
         self.bounds = None
         self.z_index = 1
         self.tangible = True
-        self.angle_motion = AngleMovement(curr_value=10, delta=1.3, max_value=40)
-        self.vector_motion = Movement(curr_value=0, delta=1, max_value=100)
+        self.angle_motion = AngleMovement(delta=10, max_value=1)
+        self.vector_motion = Movement(delta=50, max_value=100)
         self.type = 'Object'
 
     @property
@@ -67,7 +67,7 @@ class Entity:
     def set_shot(self, flag: int):
         pass
 
-    def shot(self):
+    def shot(self, time_delta):
         pass
 
     def get_info(self):
@@ -103,14 +103,14 @@ class Player(Entity):
     def set_shot(self, flag: int):
         self.shoting = flag != 0
 
-    def shot(self):
-        if self.shot_counter == 0:
+    def shot(self, time_delta):
+        if self.shot_counter <= 0:
             if self.shoting:
                 bullet = Bullet(self.x, self.y, self.angle_motion.angle_current)
                 self.shot_counter = 60
                 return bullet
         elif self.shot_counter > 0:
-            self.shot_counter -= 1
+            self.shot_counter -= 1 * time_delta * 100
         return None
 
 
@@ -118,7 +118,7 @@ class Bullet(Entity):
     def __init__(self, x: float, y: float, r: float):
         super().__init__(x, y)
         self.id = 1
-        self.bounds = [Point(self.x + -12, self.y + 0), Point(self.x + 0, self.y + 20), Point(self.x + 12, self.y + 0)]
+        self.bounds = [Point(self.x, self.y), Point(self.x, self.y - 12)]
         self.angle_motion = AngleMovement()
         self.angle_motion.moving = 1
         self.angle_motion.angle_curr = r
