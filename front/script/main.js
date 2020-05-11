@@ -41,7 +41,7 @@ window.onload = function () {
         canvas.restore();
     }
 
-    function render_bound_ship(x, y, r, bounds, aabb, type) {
+    function render_bound_ship(x, y, r, bounds, aabb, type, hp) {
 
         context.save();
         context.translate(x, y);
@@ -51,6 +51,11 @@ window.onload = function () {
             case 'Main ship':
                 img.src = "img/main_ship.png";
                 context.drawImage(img, -15, -40, 30, 100);
+
+                context.strokeStyle = "#FFF";
+                context.strokeText(hp, 25, 50);
+                context.font = "30pt Consolas";
+
                 break;
             case 'Bullet':
                 img.src = "img/bullet.png";
@@ -85,7 +90,11 @@ window.onload = function () {
                 // } else {
                 //     render_ship(elem.x, elem.y, elem.r);
                 // }
-                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type)
+                hp = ''
+                if (elem.hp) {
+                    hp = elem.hp
+                }
+                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type, hp)
             });
 
         }

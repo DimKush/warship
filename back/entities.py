@@ -85,6 +85,7 @@ class Player(Entity):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
         self.id = str(uuid.uuid1())
+        self.hp = 100
         self.ship_model = MainShip()
         self.bounds = [Point(self.x + p.x, self.y + p.y) for p in self.ship_model.bounds]
         self.shot_counter = 0
@@ -97,7 +98,8 @@ class Player(Entity):
                                       'r': self.angle_motion.angle_current,
                                       'bounds': self.bounds,
                                       'aabb': self.bounding_box,
-                                      'type': self.ship_model.name
+                                      'type': self.ship_model.name,
+                                      'hp': self.hp
                                       }, cls=PointEncoder))
 
     def set_shot(self, flag: int):
@@ -106,7 +108,7 @@ class Player(Entity):
     def shot(self, time_delta):
         if self.shot_counter <= 0:
             if self.shoting:
-                bullet = Bullet(self.x, self.y, self.angle_motion.angle_current)
+                bullet = Bullet(self.x, self.y, self.angle_motion.angle_current, self.id)
                 self.shot_counter = 60
                 return bullet
         elif self.shot_counter > 0:
@@ -115,9 +117,11 @@ class Player(Entity):
 
 
 class Bullet(Entity):
-    def __init__(self, x: float, y: float, r: float):
+    def __init__(self, x: float, y: float, r: float, owner_id: str = ''):
         super().__init__(x, y)
         self.id = 1
+        self.owner_id = owner_id
+        self.damage = 5
         self.bounds = [Point(self.x, self.y), Point(self.x, self.y - 12)]
         self.angle_motion = AngleMovement()
         self.angle_motion.moving = 1

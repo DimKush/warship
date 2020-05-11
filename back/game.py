@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 
 from back.entities import Player, Entity, Bullet
@@ -10,7 +11,7 @@ class Game:
         self.entities = []
         self.matrix_of_interaction = {
             Player: {Player: self.stop, Bullet: self.damage},
-            Bullet: {Player: self.destroy, Bullet: self.destroy}
+            Bullet: {Bullet: self.destroy}
         }
 
     def add_player(self):
@@ -21,14 +22,18 @@ class Game:
     def exec_step(self, time_delta):
         for entity in self.entities:
             entity.next(time_delta)
-            for other_entity in self.entities:
-                if entity != other_entity \
-                        and self.box_collision(entity, other_entity) \
-                        and self.detail_collision(entity, other_entity):
-                    func = self.matrix_of_interaction.get(type(entity)).get(type(other_entity))
-                    func()
             if bullet := entity.shot(time_delta):
                 self.entities.append(bullet)
+
+        for entity, other_entity in itertools.combinations(self.entities, 2):
+            if self.box_collision(entity, other_entity) and self.detail_collision(entity, other_entity):
+                func = self.matrix_of_interaction.get(type(entity), {}).get(type(other_entity))
+                if func:
+                    func(entity, other_entity)
+                else:
+                    func = self.matrix_of_interaction.get(type(other_entity), {}).get(type(entity))
+                    if func:
+                        func(other_entity, entity)
 
     def get_state(self):
         return [pl.get_info() for pl in self.entities]
@@ -57,9 +62,17 @@ class Game:
     def get_segments(bounds: List[Point]):
         return [(bounds[i], bounds[(i + 1) % len(bounds)]) for i in range(0, len(bounds))]
 
-    def stop(self):
+    def stop(self, *args):
         print('STOP!')
-    def damage(self):
-        print('DAMAGE!!')
-    def destroy(self):
-        print('DESTROY!!!')
+
+    def damage(self, accessor: Player, donor: Bullet):
+        if accessor.id != donor.owner_id:
+            print('damage!!!')
+            accessor.hp -= donor.damage
+            self.destroy(donor, accessor)
+
+    def destroy(self, donor: Bullet, accessor: Player):
+        if accessor.id != donor.owner_id:
+            print('destoroy!')
+            if donor in self.entities:
+                self.entities.remove(donor)
