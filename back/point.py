@@ -18,7 +18,7 @@ class Point:
 
 
 class Movement:
-    def __init__(self, curr_value=0, delta=0, max_value=0):
+    def __init__(self, curr_value=0.0, delta=0.0, max_value=0.0):
         self.curr = curr_value
         self.max = max_value
         self.delta = delta
@@ -27,14 +27,14 @@ class Movement:
     def set_next(self, time: float):
         if self.moving == 0:
             if self.curr > 0:
-                self.curr -= self.delta
+                self.curr -= self.delta* time
             elif self.curr < 0:
-                self.curr += self.delta
+                self.curr += self.delta* time
         elif self.moving == 1:
-            new_curr = self.curr + self.delta * self.moving
+            new_curr = self.curr + self.delta * self.moving * time
             self.curr = self.max if new_curr >= self.max else new_curr
         elif self.moving == -1:
-            new_curr = self.curr + self.delta * self.moving
+            new_curr = self.curr + self.delta * self.moving * time
             self.curr = -self.max if new_curr <= -self.max else new_curr
 
     @property
@@ -44,16 +44,28 @@ class Movement:
 
 class AngleMovement(Movement):
     def __init__(self, curr_value=0, delta=0, max_value=0):
-        super().__init__(curr_value, delta, max_value)
+        super().__init__(curr_value=curr_value,
+                         delta=delta * pi / 180,
+                         max_value=max_value * pi / 180)
         self.angle_curr = 0
 
     def set_next(self, time: float):
+        delta_time = self.delta * time
         if self.moving == 0:
-            self.curr = 0
-        else:
-            new_curr = self.delta * self.moving * pi / 180
+            if abs(self.curr) < delta_time:
+                self.curr = 0
+            else:
+                if self.curr > 0:
+                    self.curr -= delta_time
+                elif self.curr < 0:
+                    self.curr += delta_time
+        elif self.moving == 1:
+            new_curr = self.curr + self.moving * delta_time
             self.curr = self.max if new_curr >= self.max else new_curr
-            self.angle_curr += self.curr
+        elif self.moving == -1:
+            new_curr = self.curr + self.moving * delta_time
+            self.curr = -self.max if new_curr <= -self.max else new_curr
+        self.angle_curr += self.curr
 
     @property
     def angle_current(self):
