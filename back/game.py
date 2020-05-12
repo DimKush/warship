@@ -38,8 +38,4 @@ class Game:
             if donor in self.entities:
                 self.entities.remove(donor)
 
-    def player_player(self, accessor: Player, donor: Player):
-        accessor.hp -= 1
-        donor.hp -= 1
-
 
