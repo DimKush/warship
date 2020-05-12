@@ -1,12 +1,7 @@
-import itertools
-from typing import List
-
 from back.entities import Player, Entity, Bullet, Statics
-from back.point import Point
 
 
 class Game:
-
     def __init__(self):
         self.entities = []
         self.matrix_of_interaction = {
@@ -25,18 +20,11 @@ class Game:
     def exec_step(self, time_delta):
         for entity in self.entities:
             entity.next(time_delta, self.entities)
-            if bullet := entity.shot(time_delta):
+            if bullet := entity.do_action(time_delta):
                 self.entities.append(bullet)
-
-        # for entity, other_entity in itertools.combinations(self.entities, 2):
-        #     if self.box_collision(entity, other_entity) and self.detail_collision(entity, other_entity):
-        #         func = self.matrix_of_interaction.get(type(entity), {}).get(type(other_entity))
-        #         if func:
-        #             func(entity, other_entity)
 
     def get_state(self):
         return [pl.get_info() for pl in self.entities]
-
 
     def player_bullet(self, accessor: Entity, donor: Entity):
         if isinstance(accessor, Player) and isinstance(donor, Bullet):

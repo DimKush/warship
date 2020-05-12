@@ -1,5 +1,3 @@
-from math import pi
-
 from json import JSONEncoder
 
 
@@ -25,16 +23,23 @@ class Movement:
         self.moving = 0
 
     def set_next(self, time: float):
+        delta_time = self.delta * time
         if self.moving == 0:
             if self.curr > 0:
-                self.curr -= self.delta* time
+                if self.curr > delta_time:
+                    self.curr -= delta_time
+                else:
+                    self.curr = 0
             elif self.curr < 0:
-                self.curr += self.delta* time
+                if abs(self.curr) > delta_time:
+                    self.curr += delta_time
+                else:
+                    self.curr = 0
         elif self.moving == 1:
-            new_curr = self.curr + self.delta * self.moving * time
+            new_curr = self.curr + self.moving * delta_time
             self.curr = self.max if new_curr >= self.max else new_curr
         elif self.moving == -1:
-            new_curr = self.curr + self.delta * self.moving * time
+            new_curr = self.curr + self.moving * delta_time
             self.curr = -self.max if new_curr <= -self.max else new_curr
 
     @property
@@ -45,8 +50,8 @@ class Movement:
 class AngleMovement(Movement):
     def __init__(self, curr_value=0, delta=0, max_value=0, angle_curr=0):
         super().__init__(curr_value=curr_value,
-                         delta=delta * pi / 180,
-                         max_value=max_value * pi / 180)
+                         delta=delta,
+                         max_value=max_value)
         self.angle_curr = angle_curr
 
     def set_next(self, time: float):
