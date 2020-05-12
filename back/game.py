@@ -4,10 +4,6 @@ from back.entities import Player, Entity, Bullet, Statics
 class Game:
     def __init__(self):
         self.entities = []
-        self.matrix_of_interaction = {
-            Player: {Player: self.player_player, Bullet: self.player_bullet},
-            Bullet: {Player: self.player_bullet}
-        }
 
     def init_scene(self):
         self.entities.append(Statics(0, 0))
