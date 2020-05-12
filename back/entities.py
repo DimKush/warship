@@ -1,6 +1,8 @@
 import json
 import uuid
-from math import cos, sin
+from copy import copy
+from math import cos, sin, pi
+from typing import List
 
 from back.config import AREA_WIDTH, AREA_HEIGHT
 from back.point import Point, Movement, AngleMovement, PointEncoder
@@ -11,10 +13,15 @@ class Entity:
     def __init__(self, x: float, y: float):
         self.axis = Point(x, y)
         self.bounds = None
+        self.prev_axis = None
+        self.prev_bounds = self.bounds
         self.z_index = 1
         self.tangible = True
+        self.id = 0
         self.angle_motion = AngleMovement(delta=10, max_value=1)
         self.vector_motion = Movement(delta=50, max_value=100)
+        self.prev_angle = self.angle_motion
+        self.prev_vector = self.vector_motion
         self.type = 'Object'
 
     @property
@@ -36,7 +43,15 @@ class Entity:
         else:
             return 0, 0, 0, 0
 
-    def next(self, t: float):
+    def next(self, t: float, others):
+        self.prev_angle = AngleMovement(-1 * self.angle_motion.curr,
+                                                    self.angle_motion.delta * 180 / pi,
+                                                    self.angle_motion.max * 180 / pi,
+                                                    self.angle_motion.angle_current)
+
+        self.prev_vector = Movement(-1 * self.vector_motion.curr,
+                                                self.vector_motion.delta,
+                                                self.vector_motion.max)
         self.angle_motion.set_next(t)
         self.vector_motion.set_next(t)
 
@@ -52,10 +67,23 @@ class Entity:
             x %= AREA_WIDTH
             y %= AREA_HEIGHT
             new_bounds.append(Point(x, y))
+        self.prev_bounds = copy(self.bounds)
         self.bounds = new_bounds
 
+        self.prev_axis = Point(self.x, self.y)
         self.axis.x -= x_delta
         self.axis.y += y_delta
+
+        for entity in others:
+            if entity != self:
+                if self.box_collision(entity, self) and self.detail_collision(entity, self):
+                    self.axis = self.prev_axis
+                    self.bounds = self.prev_bounds
+
+                    if self.vector_motion.curr != 0:
+                        self.vector_motion = self.prev_vector
+                    if self.angle_motion.curr != 0:
+                        self.angle_motion = self.prev_angle
 
         self.axis.x = self.axis.x % AREA_WIDTH
         self.axis.y = self.axis.y % AREA_HEIGHT
@@ -79,6 +107,38 @@ class Entity:
                                       'aabb': self.bounding_box,
                                       'type': self.type
                                       }, cls=PointEncoder))
+
+    def rollback_coords(self):
+        self.axis = self.prev_axis
+        self.bounds = self.prev_bounds
+        self.vector_motion = self.prev_vector
+        self.angle_motion = self.prev_angle
+
+
+
+    @staticmethod
+    def box_collision(entity_1, entity_2):
+        x1, y1, x2, y2 = entity_1.bounding_box
+        x3, y3, x4, y4 = entity_2.bounding_box
+        if (x2 >= x3) and (x4 >= x1) and (y2 >= y3) and (y4 >= y1):
+            return True
+        return False
+
+    @staticmethod
+    def vector_multiple(p0: Point, p1: Point, p2: Point):
+        return (p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y)
+
+    def detail_collision(self, entity_1, entity_2):
+        for p1, p2 in self.get_segments(entity_1.bounds):
+            for p3, p4 in self.get_segments(entity_2.bounds):
+                if self.vector_multiple(p1, p3, p2) * self.vector_multiple(p1, p4, p2) <= 0 and \
+                        self.vector_multiple(p3, p1, p4) * self.vector_multiple(p3, p2, p4) <= 0:
+                    return True
+        return False
+
+    @staticmethod
+    def get_segments(bounds: List[Point]):
+        return [(bounds[i], bounds[(i + 1) % len(bounds)]) for i in range(0, len(bounds))]
 
 
 class Player(Entity):
@@ -136,3 +196,12 @@ class Bullet(Entity):
             new_bounds.append(Point(x, y))
         self.bounds = new_bounds
         self.vector_motion = Movement(curr_value=200, delta=0, max_value=200)
+
+
+class Statics(Entity):
+    def __init__(self, x: float, y: float):
+        super().__init__(x, y)
+        self.bounds = [Point(0, 0),
+                       Point(AREA_WIDTH -1, 0),
+                       Point(AREA_WIDTH -1, 2),
+                       Point(0, 2)]

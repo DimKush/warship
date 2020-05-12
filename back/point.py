@@ -43,11 +43,11 @@ class Movement:
 
 
 class AngleMovement(Movement):
-    def __init__(self, curr_value=0, delta=0, max_value=0):
+    def __init__(self, curr_value=0, delta=0, max_value=0, angle_curr=0):
         super().__init__(curr_value=curr_value,
                          delta=delta * pi / 180,
                          max_value=max_value * pi / 180)
-        self.angle_curr = 0
+        self.angle_curr = angle_curr
 
     def set_next(self, time: float):
         delta_time = self.delta * time

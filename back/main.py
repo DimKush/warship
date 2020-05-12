@@ -37,6 +37,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.on_event("startup")
 async def startup_event():
+    app.state.gl.init_scene()
     await start_background_tasks()
 
 
