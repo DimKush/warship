@@ -71,9 +71,7 @@ class Player(Entity):
         self.shoting = False
 
     def get_info(self):
-        return json.loads(json.dumps({'id': self.id,
-                                      'x': self.x,
-                                      'y': self.y,
+        return json.loads(json.dumps({'id': self.id, 'x': self.x, 'y': self.y,
                                       'r': self.geometry.angle_motion.angle_current,
                                       'bounds': self.geometry.bounds,
                                       'aabb': self.geometry.bounding_box,
