@@ -31,12 +31,13 @@ async def websocket_endpoint(websocket: WebSocket):
             angle = -1
         if data['shot']:
             shot = 1
-        player.set_shot(shot)
+        player.set_action(shot)
         player.set_moving(angle, ahead)
 
 
 @app.on_event("startup")
 async def startup_event():
+    app.state.gl.init_scene()
     await start_background_tasks()
 
 
