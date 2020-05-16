@@ -36,15 +36,15 @@ class Geometry:
         self.angle_motion.set_next(t)
         self.vector_motion.set_next(t)
 
-        x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current)
-        y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current)
+        x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current) * t
+        y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current) * t
 
         new_bounds = []
         for point in self.bounds:
-            x = self.x + (point.x - self.x) * cos(self.angle_motion.current) - (point.y - self.y) * sin(
-                self.angle_motion.current) - x_delta
-            y = self.y + (point.y - self.y) * cos(self.angle_motion.current) + (point.x - self.x) * sin(
-                self.angle_motion.current) + y_delta
+            x = (point.x - self.x) * cos(self.angle_motion.current *t) + self.x - \
+                (point.y - self.y) * sin(self.angle_motion.current *t) - x_delta
+            y = (point.y - self.y) * cos(self.angle_motion.current *t) + self.y + \
+                (point.x - self.x) * sin(self.angle_motion.current *t) + y_delta
             new_bounds.append(Point(x, y))
         self.bounds = new_bounds
 
