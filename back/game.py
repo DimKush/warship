@@ -18,6 +18,8 @@ class Game:
             entity.next(time_delta, self.entities)
             if bullet := entity.do_action(time_delta):
                 self.entities.append(bullet)
+            if entity.hp <= 0:
+                self.entities.remove(entity)
 
     def get_state(self):
         return [pl.get_info() for pl in self.entities]
