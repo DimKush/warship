@@ -24,10 +24,10 @@ class Geometry:
     @property
     def bounding_box(self):
         if self.bounds is not None:
-            min_x = min(point.x for point in self.bounds)
-            min_y = min(point.y for point in self.bounds)
-            max_x = max(point.x for point in self.bounds)
-            max_y = max(point.y for point in self.bounds)
+            min_x = min(self.bounds, key=lambda a: a.x).x
+            min_y = min(self.bounds, key=lambda a: a.y).y
+            max_x = max(self.bounds, key=lambda a: a.x).x
+            max_y = max(self.bounds, key=lambda a: a.y).y
             return min_x, min_y, max_x, max_y
         else:
             return 0, 0, 0, 0
@@ -36,8 +36,8 @@ class Geometry:
         self.angle_motion.set_next(t)
         self.vector_motion.set_next(t)
 
-        x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current) * t
-        y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current) * t
+        x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current)
+        y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current)
 
         new_bounds = []
         for point in self.bounds:
