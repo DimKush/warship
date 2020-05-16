@@ -13,6 +13,8 @@ class Ship(ABC):
         self.acceleration: float
         self.hp: int
         self.shot_speed: int
+        self.bullet_damage: int
+        self.bullet_speed: int
         self.bounds: Tuple[Point]
 
 
@@ -24,7 +26,7 @@ class MainShip(Ship):
         self.speed = 200
         self.acceleration = 300
         self.hp = 100
-        self.shot_speed = 1
+        self.shot_speed = 3
         self.bounds = (
             Point(-15, -40),
             Point(-15, 40),
@@ -32,3 +34,5 @@ class MainShip(Ship):
             Point(15, 40),
             Point(15, -40),
         )
+        self.bullet_damage = 5
+        self.bullet_speed = 200
