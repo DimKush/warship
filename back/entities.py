@@ -69,8 +69,8 @@ class Player(Entity):
         self.geometry.bounds = [Point(self.x + p.x, self.y + p.y) for p in self.ship_model.bounds]
         self.geometry.vector_motion = Movement(delta=self.ship_model.acceleration,
                                                max_value=self.ship_model.speed)
-        self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 0.1,
-                                                   max_value=self.ship_model.mobility * 0.02)
+        self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility,
+                                                   max_value=self.ship_model.mobility * 0.01)
         self.hp = self.ship_model.hp
         self.shot_counter = 0
         self.shoting = False
