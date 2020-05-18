@@ -76,15 +76,25 @@ window.onload = function () {
         context.stroke();
         point(x, y, context)
     }
+    function render_stat(x) {
+        context.save();
+        context.translate(12, 12);
+        context.strokeStyle = "#FFF";
+        context.font = "50pt Consolas";
+        context.strokeText(x, 25, 50);
+        context.restore();
+    }
 
 
     socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
+
         if (typeof data.player_id === "string") {
             player_id = data.player_id;
         } else {
             clean_field();
-            data.forEach((elem) => {
+            render_stat(data.entities_count)
+            data.entities.forEach((elem) => {
                 // if (elem.id == player_id) {
                 //     render_main_ship(elem.x, elem.y, elem.r);
                 // } else {
