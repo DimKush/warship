@@ -39,14 +39,12 @@ class Geometry:
         x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current) * t
         y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current) * t
 
-        new_bounds = []
         for point in self.bounds:
-            x = (point.x - self.x) * cos(self.angle_motion.current *t) + self.x - \
-                (point.y - self.y) * sin(self.angle_motion.current *t) - x_delta
-            y = (point.y - self.y) * cos(self.angle_motion.current *t) + self.y + \
-                (point.x - self.x) * sin(self.angle_motion.current *t) + y_delta
-            new_bounds.append(Point(x, y))
-        self.bounds = new_bounds
+            tmp_x = (point.x - self.x) * cos(self.angle_motion.current * t) + self.x - \
+                (point.y - self.y) * sin(self.angle_motion.current * t) - x_delta
+            point.y = (point.y - self.y) * cos(self.angle_motion.current * t) + self.y + \
+                (point.x - self.x) * sin(self.angle_motion.current * t) + y_delta
+            point.x = tmp_x
 
         self.axis.x -= x_delta
         self.axis.y += y_delta
@@ -101,4 +99,3 @@ class GeometryLine(Geometry):
 
         self.axis.x -= x_delta
         self.axis.y += y_delta
-
