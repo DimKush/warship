@@ -13,6 +13,10 @@ class Game:
         self.entities.append(player)
         return player
 
+    def del_player(self, player):
+        if player in self.entities:
+            self.entities.remove(player)
+
     def exec_step(self, time_delta):
         for entity in self.entities:
             entity.next(time_delta, self.entities)
@@ -22,7 +26,10 @@ class Game:
                 self.entities.remove(entity)
 
     def get_state(self):
-        return [pl.get_info() for pl in self.entities]
+        return {
+            'entities_count': len(self.entities),
+            'entities': [pl.get_info() for pl in self.entities]
+        }
 
     def player_bullet(self, accessor: Entity, donor: Entity):
         if isinstance(accessor, Player) and isinstance(donor, Bullet):

@@ -1,0 +1,14 @@
+body {
+    background-color: #256692;
+}
+
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+}
+
+p {
+    font-family: 'Share Tech Mono', monospace; color: ghostwhite;
+    margin: 0;
+}

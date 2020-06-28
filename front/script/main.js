@@ -1,26 +1,58 @@
-var socket = new WebSocket("ws://localhost:8000/ws");
-var context;
-var action = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-    shot: false
-};
-var last_action = {};
-var send_movement = false;
-var player_id = '';
+const SEA_COLOR = "#256692";
+const AREA_WIDTH = 3000;
+const AREA_HEIGHT = 2000;
+
 window.onload = function () {
-    var drawingCanvas = document.getElementById('screen');
+    let screen_width = window.innerWidth
+    let screen_height = window.innerHeight;
+    let socket = new WebSocket("ws://localhost:8000/ws");
+    let context;
+    let action = {up: false, down: false, left: false, right: false, shot: false};
+    let last_action = {};
+    let send_movement = false;
+    let player_id = '';
+
+    let drawingCanvas = document.getElementById('screen');
+
     if (drawingCanvas && drawingCanvas.getContext) {
         context = drawingCanvas.getContext('2d');
+        context.canvas.width  = screen_width;
+        context.canvas.height = screen_height;
         clean_field()
     }
 
-    function clean_field() {
-        context.fillStyle = "#2a5d64";
-        context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height)
+    function render_screen(player_data, all_data) {
+        clean_field();
+        all_data.forEach((elem) => {
+            let x_delta = 0
+            if (player_data.x > (screen_width / 2)) {
+                x_delta = screen_width / 2 - player_data.x
+            }
+            if (player_data.x > AREA_WIDTH - (screen_width / 2)) {
+                x_delta = screen_width - AREA_WIDTH
+            }
+            let y_delta = 0
+            if (player_data.y > (screen_height / 2)) {
+                y_delta = screen_height / 2 - player_data.y
+            }
+            if (player_data.y > AREA_HEIGHT - (screen_height / 2)) {
+                y_delta = screen_height - AREA_HEIGHT
+            }
+            elem.x += x_delta
+            elem.y += y_delta
+            elem.aabb[0] += x_delta
+            elem.aabb[1] += y_delta
+            elem.aabb[2] += x_delta
+            elem.aabb[3] += y_delta
+            elem.bounds.forEach(function(point) {point[0] += x_delta; point[1] += y_delta })
 
+            render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type,elem.hp || '')
+        });
+    }
+
+    function clean_field() {
+        context.fillStyle = SEA_COLOR;
+        context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height)
     }
 
     function render_main_ship(x, y, r) {
@@ -42,100 +74,49 @@ window.onload = function () {
     }
 
     function render_bound_ship(x, y, r, bounds, aabb, type, hp) {
-
         context.save();
         context.translate(x, y);
         context.rotate(r);
-        var img = new Image();
+        let img = new Image();
         switch (type) {
             case 'Main ship':
-                img.src = "img/main_ship.png";
-                context.drawImage(img, -15, -40, 30, 100);
-
-                context.strokeStyle = "#FFF";
-                context.strokeText(hp, 25, 50);
-                context.font = "30pt Consolas";
-
+                img.src = "static/img/tuna_main.png";
+                context.drawImage(img, -25, -60, 49, 124);
                 break;
             case 'Bullet':
-                img.src = "img/bullet.png";
+                img.src = "static/img/bullet.png";
                 context.drawImage(img, -6, -12, 12, 15);
                 break;
         }
         context.restore();
 
-        context.fillStyle = "rgba(133,0,5,0.61)";
-        context.beginPath();
-        context.moveTo(bounds[0][0], bounds[0][1]);
-        bounds.forEach((elem) => {
-            context.lineTo(elem[0], elem[1]);
-        });
-        context.fill();
-        context.beginPath();
         context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
         context.stroke();
         point(x, y, context)
     }
 
-
-    socket.onmessage = function (event) {
-        let data = JSON.parse(event.data);
-        if (typeof data.player_id === "string") {
-            player_id = data.player_id;
-        } else {
-            clean_field();
-            data.forEach((elem) => {
-                // if (elem.id == player_id) {
-                //     render_main_ship(elem.x, elem.y, elem.r);
-                // } else {
-                //     render_ship(elem.x, elem.y, elem.r);
-                // }
-                hp = ''
-                if (elem.hp) {
-                    hp = elem.hp
-                }
-                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type, hp)
-            });
-
-        }
-    };
-
-    document.addEventListener('keydown', function (event) {
-        evaluateMovement(event, true);
-    });
-    document.addEventListener('keyup', function (event) {
-        evaluateMovement(event, false);
-    });
-
-    function evaluateMovement(event, action_flag) {
+    function evaluate_movement(event, action_flag) {
         switch (event.keyCode) {
             case 65: // A
-                action.left = action_flag;
-                break;
+                action.left = action_flag; break;
             case 87: // W
-                action.up = action_flag;
-                break;
+                action.up = action_flag; break;
             case 68: // D
-                action.right = action_flag;
-                break;
+                action.right = action_flag; break;
             case 83: // S
-                action.down = action_flag;
-                break;
+                action.down = action_flag; break;
             case 32: // space
-                action.shot = action_flag;
-                break;
+                action.shot = action_flag; break;
         }
-        if (!(last_action.up === action.up &&
-            last_action.down === action.down &&
-            last_action.right === action.right &&
-            last_action.left === action.left &&
-            last_action.shot === action.shot)) {
-            for (var key in action) {
+        for (let key in action) {
+            if (last_action[key] !== action[key]) {
                 last_action[key] = action[key];
+                send_movement = true;
             }
-            send_movement = true;
         }
     }
+    document.addEventListener('keydown', event => evaluate_movement(event, true));
+    document.addEventListener('keyup', event => evaluate_movement(event, false));
 
     socket.onopen = function () {
         setInterval(function () {
@@ -144,20 +125,17 @@ window.onload = function () {
                 send_movement = false;
             }
         }, 100);
-    };
-
-};
-class Game {
-    constructor() {
-        this.socket = new WebSocket("ws://localhost:8000/ws_red");
-        this.context = null;
-        this.movement = {
-            up: false,
-            down: false,
-            left: false,
-            right: false
-        };
-        this.last_movement = {};
     }
-}
 
+    socket.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        if (typeof data.player_id === "string") {
+            player_id = data.player_id;
+        } else {
+            let self_object = data.entities.find(function (elem) {
+                return elem.id === player_id
+            })
+            render_screen(self_object, data.entities);
+        }
+    };
+}

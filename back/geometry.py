@@ -24,10 +24,10 @@ class Geometry:
     @property
     def bounding_box(self):
         if self.bounds is not None:
-            min_x = min(point.x for point in self.bounds)
-            min_y = min(point.y for point in self.bounds)
-            max_x = max(point.x for point in self.bounds)
-            max_y = max(point.y for point in self.bounds)
+            min_x = min(self.bounds, key=lambda a: a.x).x
+            min_y = min(self.bounds, key=lambda a: a.y).y
+            max_x = max(self.bounds, key=lambda a: a.x).x
+            max_y = max(self.bounds, key=lambda a: a.y).y
             return min_x, min_y, max_x, max_y
         else:
             return 0, 0, 0, 0
@@ -39,14 +39,12 @@ class Geometry:
         x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current) * t
         y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current) * t
 
-        new_bounds = []
         for point in self.bounds:
-            x = self.x + (point.x - self.x) * cos(self.angle_motion.current) - (point.y - self.y) * sin(
-                self.angle_motion.current) - x_delta
-            y = self.y + (point.y - self.y) * cos(self.angle_motion.current) + (point.x - self.x) * sin(
-                self.angle_motion.current) + y_delta
-            new_bounds.append(Point(x, y))
-        self.bounds = new_bounds
+            tmp_x = (point.x - self.x) * cos(self.angle_motion.current * t) + self.x - \
+                (point.y - self.y) * sin(self.angle_motion.current * t) - x_delta
+            point.y = (point.y - self.y) * cos(self.angle_motion.current * t) + self.y + \
+                (point.x - self.x) * sin(self.angle_motion.current * t) + y_delta
+            point.x = tmp_x
 
         self.axis.x -= x_delta
         self.axis.y += y_delta
@@ -101,4 +99,3 @@ class GeometryLine(Geometry):
 
         self.axis.x -= x_delta
         self.axis.y += y_delta
-

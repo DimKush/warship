@@ -1,13 +1,13 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <script src="script/main.js"></script>
-        <title>Flash Y</title>
+        <link href="{{ url_for('static', path='/styles/main.css') }}" rel="stylesheet">
+        <script src="{{ url_for('static', path='/script/main.js') }}"></script>
+        <title>steel rebbot</title>
     </head>
     <body>
         <canvas id="screen" width="1800" height="800">
             <p>Ваш браузер не поддерживает рисование.</p>
         </canvas>
-        <div id="total"></div>
     </body>
 </html>
