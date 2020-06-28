@@ -7,6 +7,7 @@ var action = {
     right: false,
     shot: false
 };
+let ship_type = Math.floor(Math.random() * 4);
 var last_action = {};
 var send_movement = false;
 var player_id = '';
@@ -18,7 +19,7 @@ window.onload = function () {
     }
 
     function clean_field() {
-        context.fillStyle = "#2a5d64";
+        context.fillStyle = "#308995";
         context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height)
 
     }
@@ -49,8 +50,18 @@ window.onload = function () {
         var img = new Image();
         switch (type) {
             case 'Main ship':
-                img.src = "img/main_ship.png";
-                context.drawImage(img, -15, -40, 30, 100);
+                if (ship_type == 1) {
+                    img.src = "img/tuna_green.png";
+                    context.drawImage(img, -20, -50, 39, 99);
+                }
+                if (ship_type == 2) {
+                    img.src = "img/tuna_main.png";
+                    context.drawImage(img, -25, -60, 49, 124);
+                }
+                if (ship_type == 3) {
+                    img.src = "img/tun_orange.png";
+                    context.drawImage(img, -50, -120, 98, 248);
+                }
 
                 context.strokeStyle = "#FFF";
                 context.strokeText(hp, 25, 50);
@@ -64,14 +75,14 @@ window.onload = function () {
         }
         context.restore();
 
-        context.fillStyle = "rgba(133,0,5,0.61)";
-        context.beginPath();
-        context.moveTo(bounds[0][0], bounds[0][1]);
-        bounds.forEach((elem) => {
-            context.lineTo(elem[0], elem[1]);
-        });
-        context.fill();
-        context.beginPath();
+//        context.fillStyle = "rgba(133,0,5,0.61)";
+//        context.beginPath();
+//        context.moveTo(bounds[0][0], bounds[0][1]);
+//        bounds.forEach((elem) => {
+//            context.lineTo(elem[0], elem[1]);
+//        });
+//        context.fill();
+//        context.beginPath();
         context.rect(aabb[0], aabb[1], aabb[2] - aabb[0], aabb[3] - aabb[1]);
         context.stroke();
         point(x, y, context)
@@ -171,3 +182,4 @@ class Game {
     }
 }
 
+let game = new Game();

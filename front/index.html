@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>steel rebbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', path='/styles/menu.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/styles/main.css') }}" rel="stylesheet">
+    <script>
+        function redirect_to_start() {
+            window.location.href = '/game'
+        }
+    </script>
+</head>
+<body>
+    <div id="content">
+        <div id="game_name">
+            <p>Steel rebbot</p>
+        </div>
+        <div id="go_game" onclick="redirect_to_start()">
+            <p>Start</p>
+        </div>
+    </div>
+</body>
+</html>
