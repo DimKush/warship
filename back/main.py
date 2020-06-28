@@ -2,7 +2,9 @@ import asyncio
 import time
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.websockets import WebSocket
 
 from back.game import Game
@@ -11,6 +13,8 @@ app = FastAPI()
 app.state.gl = Game()
 app.state.sockets = []
 
+app.mount("/static", StaticFiles(directory="../front"), name="static")
+templates = Jinja2Templates(directory="../front")
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -33,6 +37,15 @@ async def websocket_endpoint(websocket: WebSocket):
             shot = 1
         player.set_action(shot)
         player.set_moving(angle, ahead)
+
+
+@app.get("/index")
+async def main_menu(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/game")
+async def main_menu(request: Request):
+    return templates.TemplateResponse("client.html", {"request": request})
 
 
 @app.on_event("startup")
