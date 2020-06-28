@@ -3,7 +3,7 @@ import uuid
 from copy import deepcopy
 from math import cos, sin
 
-from back.config import AREA_WIDTH
+from back.config import AREA_WIDTH, AREA_HEIGHT
 from back.geometry import Geometry, GeometryLine
 from back.point import Point, Movement, AngleMovement, PointEncoder
 from back.ships import MainShip
@@ -125,7 +125,7 @@ class Bullet(Entity):
 class Statics(Entity):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
-        self.geometry.bounds = [Point(0, 0),
-                                Point(AREA_WIDTH - 1, 0),
-                                Point(AREA_WIDTH - 1, 2),
-                                Point(0, 2)]
+        self.geometry.bounds = [Point(4, 4),
+                                Point(AREA_WIDTH - 8, 4),
+                                Point(AREA_WIDTH - 8, AREA_HEIGHT - 8),
+                                Point(AREA_HEIGHT - 8, 4)]

@@ -1,4 +1,6 @@
 const SEA_COLOR = "#256692";
+const AREA_WIDTH = 3000;
+const AREA_HEIGHT = 2000;
 
 window.onload = function () {
     let screen_width = window.innerWidth
@@ -19,8 +21,33 @@ window.onload = function () {
         clean_field()
     }
 
-    function render_screen() {
+    function render_screen(player_data, all_data) {
+        clean_field();
+        all_data.forEach((elem) => {
+            let x_delta = 0
+            if (player_data.x > (screen_width / 2)) {
+                x_delta = screen_width / 2 - player_data.x
+            }
+            if (player_data.x > AREA_WIDTH - (screen_width / 2)) {
+                x_delta = screen_width - AREA_WIDTH
+            }
+            let y_delta = 0
+            if (player_data.y > (screen_height / 2)) {
+                y_delta = screen_height / 2 - player_data.y
+            }
+            if (player_data.y > AREA_HEIGHT - (screen_height / 2)) {
+                y_delta = screen_height - AREA_HEIGHT
+            }
+            elem.x += x_delta
+            elem.y += y_delta
+            elem.aabb[0] += x_delta
+            elem.aabb[1] += y_delta
+            elem.aabb[2] += x_delta
+            elem.aabb[3] += y_delta
+            elem.bounds.forEach(function(point) {point[0] += x_delta; point[1] += y_delta })
 
+            render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type,elem.hp || '')
+        });
     }
 
     function clean_field() {
@@ -106,13 +133,9 @@ window.onload = function () {
             player_id = data.player_id;
         } else {
             let self_object = data.entities.find(function (elem) {
-                return elem.id === player_id.id
+                return elem.id === player_id
             })
             render_screen(self_object, data.entities);
-            clean_field();
-            data.entities.forEach((elem) => {
-                render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type, elem.hp || '')
-            });
         }
     };
 }
