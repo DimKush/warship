@@ -23,31 +23,25 @@ window.onload = function () {
 
     function render_screen(player_data, all_data) {
         clean_field();
+        let camera_offset_x = 0;
+        let camera_offset_y = 0;
+        if (player_data.x > (screen_width / 2)) {
+            camera_offset_x = screen_width / 2 - player_data.x
+        }
+        if (player_data.x > AREA_WIDTH - (screen_width / 2)) {
+            camera_offset_x = screen_width - AREA_WIDTH
+        }
+        if (player_data.y > (screen_height / 2)) {
+            camera_offset_y = screen_height / 2 - player_data.y
+        }
+        if (player_data.y > AREA_HEIGHT - (screen_height / 2)) {
+            camera_offset_y = screen_height - AREA_HEIGHT
+        }
+        context.translate(camera_offset_x, camera_offset_y);
         all_data.forEach((elem) => {
-            let x_delta = 0
-            if (player_data.x > (screen_width / 2)) {
-                x_delta = screen_width / 2 - player_data.x
-            }
-            if (player_data.x > AREA_WIDTH - (screen_width / 2)) {
-                x_delta = screen_width - AREA_WIDTH
-            }
-            let y_delta = 0
-            if (player_data.y > (screen_height / 2)) {
-                y_delta = screen_height / 2 - player_data.y
-            }
-            if (player_data.y > AREA_HEIGHT - (screen_height / 2)) {
-                y_delta = screen_height - AREA_HEIGHT
-            }
-            elem.x += x_delta
-            elem.y += y_delta
-            elem.aabb[0] += x_delta
-            elem.aabb[1] += y_delta
-            elem.aabb[2] += x_delta
-            elem.aabb[3] += y_delta
-            elem.bounds.forEach(function(point) {point[0] += x_delta; point[1] += y_delta })
-
-            render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type,elem.hp || '')
+            render_bound_ship(elem.x, elem.y, elem.r, elem.bounds, elem.aabb, elem.type, elem.hp || '')
         });
+        context.translate(-camera_offset_x, -camera_offset_y);
     }
 
     function clean_field() {
