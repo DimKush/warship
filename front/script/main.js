@@ -48,7 +48,7 @@ class Render {
         }
         this.context.translate(camera_offset_x, camera_offset_y);
         all_data.forEach((elem) => {
-            this.render_bound_ship(elem)
+            this.render_entity(elem)
         });
         this.context.translate(-camera_offset_x, -camera_offset_y);
     }
@@ -65,7 +65,7 @@ class Render {
         canvas.fill();
     }
 
-    render_bound_ship(elem) {
+    render_entity(elem) {
         this.context.save();
         this.context.translate(elem.x, elem.y);
         this.context.rotate(elem.r);
