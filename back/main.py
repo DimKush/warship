@@ -1,13 +1,17 @@
 import asyncio
+import json
+import os
 import time
 
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.responses import JSONResponse
 from starlette.websockets import WebSocket
 from websockets import ConnectionClosedOK
 
+from back.config import ENTITY_PATH
 from back.game import Game
 
 app = FastAPI()
@@ -58,6 +62,18 @@ async def main_menu(request: Request):
 @app.get("/game")
 async def main_menu(request: Request):
     return templates.TemplateResponse("client.html", {"request": request})
+
+
+@app.get("/load_data")
+async def load_data(request: Request):
+    data = {}
+    for root, dirs, files in os.walk(ENTITY_PATH):
+        for name in files:
+            f = open(os.path.join(root, name), 'r')
+            obj = json.loads(f.read())
+            context_id = obj.pop('context_id')
+            data[context_id] = obj
+    return JSONResponse(content=data)
 
 
 @app.on_event("startup")
