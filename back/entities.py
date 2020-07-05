@@ -54,6 +54,15 @@ class Entity:
     def do_action(self, time_delta):
         pass
 
+    def load_body_configuration(self, file_name: str):
+        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
+        with open(f'{join(SHIPS_PATH, file_name)}', 'r') as f:
+            obj = json.loads(f.read())
+            self.context_id = obj['context_id']
+            self.geometry.bounds = [Point(p['x'] + obj['offset_x'] + self.x,
+                                          p['y'] + obj['offset_y'] + self.y)
+                                    for p in obj['points']]
+
     def get_info(self):
         return json.loads(json.dumps({'id': self.id,
                                       'x': self.x,
@@ -103,14 +112,7 @@ class Player(Entity):
             self.shot_counter -= time_delta
         return None
 
-    def load_body_configuration(self, file_name: str):
-        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
-        with open(f'{join(SHIPS_PATH, file_name)}', 'r') as f:
-            obj = json.loads(f.read())
-            self.context_id = obj['context_id']
-            self.geometry.bounds = [Point(p['x'] + obj['offset_x'] + self.x,
-                                          p['y'] + obj['offset_y'] + self.y)
-                                    for p in obj['points']]
+
 
     def action_on_collision(self, entity):
         if isinstance(entity, Player) or isinstance(entity, Statics):
@@ -125,6 +127,7 @@ class Bullet(Entity):
         self.id = 1
         self.owner_id = owner.id
         self.damage = owner.ship_model.bullet_damage
+        self.load_body_configuration(f'bullet_{owner.ship_model.name}')
         self.geometry = GeometryLine(x, y, r)
         self.geometry.vector_motion = Movement(curr_value=owner.ship_model.bullet_speed,
                                                max_value=owner.ship_model.bullet_speed)
