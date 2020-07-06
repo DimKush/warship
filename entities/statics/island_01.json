@@ -1,6 +1,7 @@
 {
   "context_id": "islanda_0012",
   "type": "island",
+  "hp_max": 100,
   "texture": "island_01.png",
   "x": 0,
   "y": 0,

@@ -74,8 +74,15 @@ class Render {
         let img = new Image();
         img.src = `static/img/${obj.texture}`;
         this.context.drawImage(img, obj.offset_x, obj.offset_y, obj.width, obj.height);
-
         this.context.restore();
+
+        switch (elem.type) {
+            case 'Player':
+                this.life_count(elem)
+                this.nick_name(elem)
+                break
+        }
+
         if (DRAW_BORDERS) {
             this.context.rect(elem.aabb[0], elem.aabb[1], elem.aabb[2] - elem.aabb[0], elem.aabb[3] - elem.aabb[1]);
             this.context.stroke();
@@ -89,7 +96,19 @@ class Render {
             this.context.fill();
         }
     }
+
+    life_count(elem) {
+        this.context.fillStyle = "green";
+        this.context.fillRect(elem.x - elem.hp / 2, elem.aabb[1] - 20, elem.hp, 10);
+    }
+
+    nick_name(elem) {
+        this.context.fillStyle = "white";
+        this.context.font = 'bold 20px Arial';
+        this.context.fillText(elem.name, elem.x - elem.hp_max / 2, elem.aabb[1] - 30, elem.hp_max)
+    }
 }
+
 
 function evaluate_movement(event, action_flag) {
     switch (event.keyCode) {
@@ -130,6 +149,8 @@ function handle_message(event, render) {
 }
 
 function handle_open_socket(event) {
+
+    socket.send(JSON.stringify({'name': player_name}));
     setInterval(function () {
         if (send_movement) {
             socket.send(JSON.stringify(action));
@@ -149,7 +170,7 @@ window.onload = function () {
         document.addEventListener('keyup', event => evaluate_movement(event, false));
     }
 
-    start().then(function() {
+    start().then(function () {
         console.log("Game started")
     });
 }

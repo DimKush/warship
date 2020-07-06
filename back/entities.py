@@ -65,9 +65,10 @@ class Entity:
 
     def get_info(self):
         return json.loads(json.dumps({'id': self.id,
+                                      'type': type(self).__name__,
                                       'x': self.x,
                                       'y': self.y,
-                                      'r': self.geometry.angle_motion.angle_current,
+                                      'r': self.r,
                                       'bounds': self.geometry.bounds,
                                       'aabb': self.geometry.bounding_box,
                                       'context_id': self.context_id
@@ -78,6 +79,7 @@ class Player(Entity):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
         self.id = str(uuid.uuid1())
+        self.name = ''
         self.ship_model = MainShip()
         self.load_body_configuration(self.ship_model.name)
         self.geometry.vector_motion = Movement(delta=self.ship_model.acceleration,
@@ -85,19 +87,9 @@ class Player(Entity):
         self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 2.8,
                                                    max_value=self.ship_model.mobility)
         self.hp = self.ship_model.hp
+        self.hp_max = self.ship_model.hp_max
         self.shot_counter = 0
         self.shoting = False
-
-    def get_info(self):
-        return json.loads(json.dumps({'id': self.id,
-                                      'x': self.x,
-                                      'y': self.y,
-                                      'r': self.r,
-                                      'bounds': self.geometry.bounds,
-                                      'aabb': self.geometry.bounding_box,
-                                      'hp': self.hp,
-                                      'context_id': self.context_id
-                                      }, cls=PointEncoder))
 
     def set_action(self, flag: int):
         self.shoting = flag != 0
@@ -113,12 +105,16 @@ class Player(Entity):
         return None
 
 
-
     def action_on_collision(self, entity):
         if isinstance(entity, Player) or isinstance(entity, Statics):
             self.geometry = self.prev_geometry
             self.geometry.vector_motion.curr *= -1
             self.geometry.angle_motion.curr *= -1
+
+    def get_info(self):
+        data = super(Player, self).get_info()
+        data.update({'hp': self.hp, 'hp_max': self.hp_max, 'name': self.name})
+        return data
 
 
 class Bullet(Entity):
