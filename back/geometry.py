@@ -49,7 +49,7 @@ class Geometry:
         self.axis.x -= x_delta
         self.axis.y += y_delta
 
-    def box_collision(self, bounding_box: List[Point]):
+    def box_collision(self, bounding_box: List[float]):
         x1, y1, x2, y2 = self.bounding_box
         x3, y3, x4, y4 = bounding_box
         if (x2 >= x3) and (x4 >= x1) and (y2 >= y3) and (y4 >= y1):

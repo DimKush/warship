@@ -1,0 +1,20 @@
+{
+  "context_id": "ship_0013",
+  "type": "bullet",
+  "hp_max": 100,
+  "texture": "bullet.png",
+  "x": 0,
+  "y": 0,
+  "offset_x": -4,
+  "offset_y": -10,
+  "width": 8,
+  "height": 10,
+  "points": [
+    {
+      "x": 0, "y": 0
+    },
+    {
+      "x": 0, "y": 30
+    }
+  ]
+}

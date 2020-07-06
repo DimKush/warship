@@ -1,3 +1,7 @@
+from os import listdir
+from random import randint
+
+from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH
 from back.entities import Player, Entity, Bullet, Statics
 
 
@@ -6,12 +10,20 @@ class Game:
         self.entities = []
 
     def init_scene(self):
-        self.entities.append(Statics(0, 0))
+        self.load_objects()
 
     def add_player(self):
-        player = Player(100, 200)
-        self.entities.append(player)
-        return player
+        distance = 150
+        while True:
+            x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
+            bbox = x - distance, y - distance, x + distance, y + distance
+            for entity in self.entities:
+                if entity.geometry.box_collision(bbox):
+                    break
+            else:
+                player = Player(x, y)
+                self.entities.append(player)
+                return player
 
     def del_player(self, player):
         if player in self.entities:
@@ -43,4 +55,8 @@ class Game:
             if donor in self.entities:
                 self.entities.remove(donor)
 
-
+    def load_objects(self):
+        for file in listdir(STATICS_PATH):
+            stx = Statics(0, 0)
+            stx.load_body_configuration(file)
+            self.entities.append(stx)

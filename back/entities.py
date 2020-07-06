@@ -1,9 +1,9 @@
 import json
 import uuid
 from copy import deepcopy
-from math import cos, sin
+from os.path import join
 
-from back.config import AREA_WIDTH, AREA_HEIGHT
+from back.config import SHIPS_PATH, STATICS_PATH
 from back.geometry import Geometry, GeometryLine
 from back.point import Point, Movement, AngleMovement, PointEncoder
 from back.ships import MainShip
@@ -13,9 +13,9 @@ class Entity:
     def __init__(self, x: float, y: float):
         self.geometry: Geometry = Geometry(x, y)
         self.prev_geometry: Geometry = self.geometry
-        self.type = 'Object'
         self.id = 0
         self.hp = 1
+        self.context_id = ''
 
     @property
     def x(self):
@@ -24,6 +24,10 @@ class Entity:
     @property
     def y(self):
         return self.geometry.y
+
+    @property
+    def r(self):
+        return self.geometry.angle_motion.angle_current
 
     def next(self, t: float, others):
         self.prev_geometry = deepcopy(self.geometry)
@@ -50,14 +54,24 @@ class Entity:
     def do_action(self, time_delta):
         pass
 
+    def load_body_configuration(self, file_name: str):
+        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
+        with open(f'{join(SHIPS_PATH, file_name)}', 'r') as f:
+            obj = json.loads(f.read())
+            self.context_id = obj['context_id']
+            self.geometry.bounds = [Point(p['x'] + obj['offset_x'] + self.x,
+                                          p['y'] + obj['offset_y'] + self.y)
+                                    for p in obj['points']]
+
     def get_info(self):
         return json.loads(json.dumps({'id': self.id,
+                                      'type': type(self).__name__,
                                       'x': self.x,
                                       'y': self.y,
-                                      'r': self.geometry.angle_motion.angle_current,
+                                      'r': self.r,
                                       'bounds': self.geometry.bounds,
                                       'aabb': self.geometry.bounding_box,
-                                      'type': self.type
+                                      'context_id': self.context_id
                                       }, cls=PointEncoder))
 
 
@@ -65,24 +79,17 @@ class Player(Entity):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
         self.id = str(uuid.uuid1())
+        self.name = ''
         self.ship_model = MainShip()
-        self.geometry.bounds = [Point(self.x + p.x, self.y + p.y) for p in self.ship_model.bounds]
+        self.load_body_configuration(self.ship_model.name)
         self.geometry.vector_motion = Movement(delta=self.ship_model.acceleration,
                                                max_value=self.ship_model.speed)
         self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 2.8,
                                                    max_value=self.ship_model.mobility)
         self.hp = self.ship_model.hp
+        self.hp_max = self.ship_model.hp_max
         self.shot_counter = 0
         self.shoting = False
-
-    def get_info(self):
-        return json.loads(json.dumps({'id': self.id, 'x': self.x, 'y': self.y,
-                                      'r': self.geometry.angle_motion.angle_current,
-                                      'bounds': self.geometry.bounds,
-                                      'aabb': self.geometry.bounding_box,
-                                      'type': self.ship_model.name,
-                                      'hp': self.hp
-                                      }, cls=PointEncoder))
 
     def set_action(self, flag: int):
         self.shoting = flag != 0
@@ -97,11 +104,17 @@ class Player(Entity):
             self.shot_counter -= time_delta
         return None
 
+
     def action_on_collision(self, entity):
-        if isinstance(entity, Player):
+        if isinstance(entity, Player) or isinstance(entity, Statics):
             self.geometry = self.prev_geometry
             self.geometry.vector_motion.curr *= -1
             self.geometry.angle_motion.curr *= -1
+
+    def get_info(self):
+        data = super(Player, self).get_info()
+        data.update({'hp': self.hp, 'hp_max': self.hp_max, 'name': self.name})
+        return data
 
 
 class Bullet(Entity):
@@ -110,22 +123,30 @@ class Bullet(Entity):
         self.id = 1
         self.owner_id = owner.id
         self.damage = owner.ship_model.bullet_damage
+        self.load_body_configuration(f'bullet_{owner.ship_model.name}')
         self.geometry = GeometryLine(x, y, r)
-
         self.geometry.vector_motion = Movement(curr_value=owner.ship_model.bullet_speed,
                                                max_value=owner.ship_model.bullet_speed)
-        self.type = 'Bullet'
 
     def action_on_collision(self, entity):
         if isinstance(entity, Player):
             entity.hp -= self.damage
+            self.hp = 0
+        elif isinstance(entity, Statics):
             self.hp = 0
 
 
 class Statics(Entity):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
-        self.geometry.bounds = [Point(4, 4),
-                                Point(AREA_WIDTH - 8, 4),
-                                Point(AREA_WIDTH - 8, AREA_HEIGHT - 8),
-                                Point(AREA_HEIGHT - 8, 4)]
+
+    def load_body_configuration(self, file_name: str = None):
+        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
+        f = open(f'{join(STATICS_PATH, file_name)}', 'r')
+        obj = json.loads(f.read())
+
+        self.context_id = obj['context_id']
+        self.geometry.axis.x, self.geometry.axis.y = obj['x'], obj['y']
+        self.geometry.bounds = [Point(p['x'] + obj['x'] + obj['offset_x'],
+                                      p['y'] + obj['y'] + obj['offset_y'])
+                                for p in obj['points']]
