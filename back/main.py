@@ -21,6 +21,7 @@ app.state.sockets = []
 app.mount("/static", StaticFiles(directory="../front"), name="static")
 templates = Jinja2Templates(directory="../front")
 
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -31,19 +32,22 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         try:
             data = await websocket.receive_json()
-            ahead = angle = shot = 0
-            if data['up']:
-                ahead = 1
-            if data['down']:
-                ahead = -1
-            if data['right']:
-                angle = 1
-            if data['left']:
-                angle = -1
-            if data['shot']:
-                shot = 1
-            player.set_action(shot)
-            player.set_moving(angle, ahead)
+            if data.get('name'):
+                player.name = data.get('name')
+            else:
+                ahead = angle = shot = 0
+                if data['up']:
+                    ahead = 1
+                if data['down']:
+                    ahead = -1
+                if data['right']:
+                    angle = - 1 if data['down'] else 1
+                if data['left']:
+                    angle = + 1 if data['down'] else -1
+                if data['shot']:
+                    shot = 1
+                player.set_action(shot)
+                player.set_moving(angle, ahead)
         except Exception as e:
             print(e)
             break
@@ -60,8 +64,8 @@ async def main_menu(request: Request):
 
 
 @app.get("/game")
-async def main_menu(request: Request):
-    return templates.TemplateResponse("client.html", {"request": request})
+async def main_menu(request: Request, user_name: str = ''):
+    return templates.TemplateResponse("client.html", {"request": request, "name": user_name})
 
 
 @app.get("/load_data")
@@ -94,8 +98,9 @@ async def response_for_all():
             delta = float((curr - last))
             last = curr
             app.state.gl.exec_step(delta)
+            curr_state = app.state.gl.get_state()
             for socket in app.state.sockets:
-                await socket.send_json(app.state.gl.get_state())
+                await socket.send_json(curr_state)
             await asyncio.sleep(0.016)
         except ConnectionClosedOK:
             pass

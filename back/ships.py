@@ -1,10 +1,6 @@
-import json
 from abc import ABC, abstractmethod
-from os import listdir
-from os.path import join, isfile
-from typing import List, Tuple
+from typing import Tuple
 
-from back import config
 from back.point import Point
 
 
@@ -16,6 +12,7 @@ class Ship(ABC):
         self.speed: float
         self.acceleration: float
         self.hp: int
+        self.hp_max: int
         self.shot_speed: int
         self.bullet_damage: int
         self.bullet_speed: int
@@ -26,10 +23,11 @@ class MainShip(Ship):
     def __init__(self):
         super().__init__()
         self.name = 'predator'
-        self.mobility = 2
+        self.mobility = 1
         self.speed = 300
         self.acceleration = 300
         self.hp = 100
+        self.hp_max = 100
         self.shot_speed = 3
         self.bounds = ()
         self.bullet_damage = 5

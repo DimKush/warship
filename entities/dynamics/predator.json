@@ -1,11 +1,12 @@
 {
   "context_id": "ship_0012",
   "type": "ship",
+  "hp_max": 100,
   "texture": "tuna_main.png",
   "x": 0,
   "y": 0,
   "offset_x": -25,
-  "offset_y": -120,
+  "offset_y": -60,
   "width": 49,
   "height": 124,
   "points": [

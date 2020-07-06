@@ -18,3 +18,11 @@
     text-align: center;
     padding: 10px;
 }
+
+#name_field {
+    width: 100%;
+    font-size: 24pt;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+}

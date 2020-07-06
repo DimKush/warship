@@ -1,6 +1,7 @@
 {
   "context_id": "ship_0013",
-  "type": "ship",
+  "type": "bullet",
+  "hp_max": 100,
   "texture": "bullet.png",
   "x": 0,
   "y": 0,
