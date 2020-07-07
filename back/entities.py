@@ -4,6 +4,7 @@ from copy import deepcopy
 from os.path import join
 
 from back.config import SHIPS_PATH, STATICS_PATH
+from back.effects import EffectFactory
 from back.geometry import Geometry, GeometryLine
 from back.point import Point, Movement, AngleMovement, PointEncoder
 from back.ships import MainShip
@@ -16,6 +17,7 @@ class Entity:
         self.id = 0
         self.hp = 1
         self.context_id = ''
+        self.effect_factory = None
 
     @property
     def x(self):
@@ -53,6 +55,9 @@ class Entity:
 
     def do_action(self, time_delta):
         pass
+
+    def set_effect_factory(self, ef: EffectFactory):
+        self.effect_factory = ef
 
     def load_body_configuration(self, file_name: str):
         file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
@@ -104,7 +109,6 @@ class Player(Entity):
             self.shot_counter -= time_delta
         return None
 
-
     def action_on_collision(self, entity):
         if isinstance(entity, Player) or isinstance(entity, Statics):
             self.geometry = self.prev_geometry
@@ -123,6 +127,7 @@ class Bullet(Entity):
         self.id = 1
         self.owner_id = owner.id
         self.damage = owner.ship_model.bullet_damage
+        self.effect_factory: EffectFactory = owner.effect_factory
         self.load_body_configuration(f'bullet_{owner.ship_model.name}')
         self.geometry = GeometryLine(x, y, r)
         self.geometry.vector_motion = Movement(curr_value=owner.ship_model.bullet_speed,
@@ -134,6 +139,7 @@ class Bullet(Entity):
             self.hp = 0
         elif isinstance(entity, Statics):
             self.hp = 0
+        self.effect_factory.add_to_pool('exp1', self.x, self.y)
 
 
 class Statics(Entity):
