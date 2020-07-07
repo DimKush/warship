@@ -30,7 +30,7 @@ class Render {
             });
     }
 
-    render_screen(player_data, all_data) {
+    render_screen(player_data, all_data, effects) {
         this.clean_field();
         let camera_offset_x = 0;
         let camera_offset_y = 0;
@@ -50,6 +50,11 @@ class Render {
         all_data.forEach((elem) => {
             this.render_entity(elem)
         });
+        effects.forEach((elem)=> {
+            console.log(elem);
+        });
+
+        effects.forEach((elem) => this.animation(elem))
         this.context.translate(-camera_offset_x, -camera_offset_y);
     }
 
@@ -98,14 +103,68 @@ class Render {
     }
 
     life_count(elem) {
+        this.context.fillStyle = "black";
+        this.context.fillRect(elem.x - elem.hp_max / 2 - 1, elem.aabb[1] - 20, elem.hp_max + 2, 10);
         this.context.fillStyle = "green";
-        this.context.fillRect(elem.x - elem.hp / 2, elem.aabb[1] - 20, elem.hp, 10);
+        this.context.fillRect(elem.x - elem.hp_max / 2, elem.aabb[1] - 19, elem.hp, 8);
     }
 
     nick_name(elem) {
+        this.context.fillStyle = "black";
+        let width = this.context.measureText(elem.name).width;
+        this.context.fillRect(elem.x - elem.hp_max / 2 - 1, elem.aabb[1] - 36, width + 10, 17);
+
         this.context.fillStyle = "white";
-        this.context.font = 'bold 20px Arial';
-        this.context.fillText(elem.name, elem.x - elem.hp_max / 2, elem.aabb[1] - 30, elem.hp_max)
+        this.context.font = 'bold 13px Arial';
+        this.context.fillText(elem.name, elem.x - elem.hp_max / 2 + 2, elem.aabb[1] - 24, elem.hp_max)
+    }
+
+    animation(elem) {
+        let animation = this.resource_data[elem.id]
+        let img = new Image();
+        img.src = `static/img/${animation.texture}`;
+        let frame = animation.frames[elem.step]
+        this.context.drawImage(img,
+            frame.sx, frame.sy, frame.width, frame.height,
+            elem.x, elem.y, frame.width, frame.height);
+    }
+}
+
+
+class Animation {
+    constructor() {
+        this.animation_pool = []
+        this.duration = 1000
+        this.step_duration = 200
+    }
+
+    add_events(list_events) {
+        let now = Date.now()
+        let ap = this.animation_pool
+        list_events.forEach((eff)=>
+            this.animation_pool.push({
+                'id': eff.id,
+                'x': eff.x,
+                'y': eff.y,
+                'start': now,
+                'finish': now + this.duration
+            })
+        )
+    }
+
+    get_current_frames() {
+        let now = Date.now()
+        let res_anim = [];
+        [...this.animation_pool].forEach((elem) => {
+            if (Date.now() > elem.finish) {
+                let index = this.animation_pool.indexOf(elem)
+                this.animation_pool.splice(index, 1);
+            } else {
+                let step_number = ((now - elem.start) / this.step_duration >> 0 )
+                res_anim.push({'id': elem.id, 'x': elem.x, 'y': elem.y, 'step': step_number})
+            }
+        })
+        return res_anim
     }
 }
 
@@ -136,7 +195,7 @@ function evaluate_movement(event, action_flag) {
     }
 }
 
-function handle_message(event, render) {
+function handle_message(event, render, animation) {
     let data = JSON.parse(event.data);
     if (typeof data.player_id === "string") {
         player_id = data.player_id;
@@ -144,7 +203,8 @@ function handle_message(event, render) {
         let self_object = data.entities.find(function (elem) {
             return elem.id === player_id
         })
-        render.render_screen(self_object, data.entities);
+        animation.add_events(data.effects)
+        render.render_screen(self_object, data.entities, animation.get_current_frames());
     }
 }
 
@@ -163,8 +223,9 @@ window.onload = function () {
     async function start() {
         let render = new Render()
         await render.init()
+        let animator = new Animation()
         socket = new WebSocket("ws://localhost:8000/ws")
-        socket.addEventListener('message', event => handle_message(event, render));
+        socket.addEventListener('message', event => handle_message(event, render, animator));
         socket.addEventListener('open', event => handle_open_socket(event));
         document.addEventListener('keydown', event => evaluate_movement(event, true));
         document.addEventListener('keyup', event => evaluate_movement(event, false));
