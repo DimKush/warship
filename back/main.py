@@ -11,7 +11,7 @@ from starlette.responses import JSONResponse
 from starlette.websockets import WebSocket
 from websockets import ConnectionClosedOK
 
-from back.config import ENTITY_PATH
+from back.config import ENTITY_PATH, RPS
 from back.game import Game
 
 app = FastAPI()
@@ -101,7 +101,7 @@ async def response_for_all():
             curr_state = app.state.gl.get_state()
             for socket in app.state.sockets:
                 await socket.send_json(curr_state)
-            await asyncio.sleep(0.016)
+            await asyncio.sleep(RPS)
         except ConnectionClosedOK:
             pass
 

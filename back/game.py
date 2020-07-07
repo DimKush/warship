@@ -2,12 +2,14 @@ from os import listdir
 from random import randint
 
 from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH
-from back.entities import Player, Entity, Bullet, Statics
+from back.effects import EffectFactory
+from back.entities import Player, Statics
 
 
 class Game:
     def __init__(self):
         self.entities = []
+        self.effect_factory = EffectFactory()
 
     def init_scene(self):
         self.load_objects()
@@ -22,6 +24,7 @@ class Game:
                     break
             else:
                 player = Player(x, y)
+                player.set_effect_factory(self.effect_factory)
                 self.entities.append(player)
                 return player
 
@@ -40,20 +43,9 @@ class Game:
     def get_state(self):
         return {
             'entities_count': len(self.entities),
-            'entities': [pl.get_info() for pl in self.entities]
+            'entities': [pl.get_info() for pl in self.entities],
+            'effects': self.effect_factory.get_effects()
         }
-
-    def player_bullet(self, accessor: Entity, donor: Entity):
-        if isinstance(accessor, Player) and isinstance(donor, Bullet):
-            pass
-        elif isinstance(accessor, Bullet) and isinstance(donor, Player):
-            accessor, donor = donor, accessor
-
-        if accessor.id != donor.owner_id:
-            print('damage!!!')
-            accessor.hp -= donor.damage
-            if donor in self.entities:
-                self.entities.remove(donor)
 
     def load_objects(self):
         for file in listdir(STATICS_PATH):
