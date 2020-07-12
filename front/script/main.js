@@ -1,7 +1,7 @@
 const SEA_COLOR = "#256692";
 const AREA_WIDTH = 3000;
 const AREA_HEIGHT = 2000;
-let DRAW_BORDERS = true;
+let DRAW_BORDERS = false;
 const TEXTURE_URL = 'http://localhost:8000/load_data';
 
 let action = {up: false, down: false, left: false, right: false, shot: false};
@@ -34,28 +34,29 @@ class Render {
         this.clean_field();
         let camera_offset_x = 0;
         let camera_offset_y = 0;
-        if (player_data.x > (this.screen_width / 2)) {
-            camera_offset_x = this.screen_width / 2 - player_data.x
-        }
-        if (player_data.x > AREA_WIDTH - (this.screen_width / 2)) {
-            camera_offset_x = this.screen_width - AREA_WIDTH
-        }
-        if (player_data.y > (this.screen_height / 2)) {
-            camera_offset_y = this.screen_height / 2 - player_data.y
-        }
-        if (player_data.y > AREA_HEIGHT - (this.screen_height / 2)) {
-            camera_offset_y = this.screen_height - AREA_HEIGHT
-        }
-        this.context.translate(camera_offset_x, camera_offset_y);
-        all_data.forEach((elem) => {
-            this.render_entity(elem)
-        });
-        effects.forEach((elem)=> {
-            console.log(elem);
-        });
+        if (player_data) {
+            if (player_data.x > (this.screen_width / 2)) {
+                camera_offset_x = this.screen_width / 2 - player_data.x
+            }
+            if (player_data.x > AREA_WIDTH - (this.screen_width / 2)) {
+                camera_offset_x = this.screen_width - AREA_WIDTH
+            }
+            if (player_data.y > (this.screen_height / 2)) {
+                camera_offset_y = this.screen_height / 2 - player_data.y
+            }
+            if (player_data.y > AREA_HEIGHT - (this.screen_height / 2)) {
+                camera_offset_y = this.screen_height - AREA_HEIGHT
+            }
+            this.context.translate(camera_offset_x, camera_offset_y);
+            all_data.forEach((elem) => {
+                this.render_entity(elem)
+            });
 
-        effects.forEach((elem) => this.animation(elem))
-        this.context.translate(-camera_offset_x, -camera_offset_y);
+            effects.forEach((elem) => this.animation(elem))
+            this.context.translate(-camera_offset_x, -camera_offset_y);
+        } else {
+            this.game_over('Game over')
+        }
     }
 
     clean_field() {
@@ -68,6 +69,13 @@ class Render {
         this.context.fillStyle = "rgb(52,251,6)";
         canvas.arc(x, y, 1, 0, 2 * Math.PI, true);
         canvas.fill();
+    }
+
+    game_over(text) {
+        this.clean_field()
+        this.context.fillStyle = "white";
+        this.context.font = 'bold 33px Arial';
+        this.context.fillText(text, this.screen_width / 2, this.screen_height / 2)
     }
 
     render_entity(elem) {
@@ -124,9 +132,11 @@ class Render {
         let img = new Image();
         img.src = `static/img/${animation.texture}`;
         let frame = animation.frames[elem.step]
-        this.context.drawImage(img,
-            frame.sx, frame.sy, frame.width, frame.height,
-            elem.x, elem.y, frame.width, frame.height);
+        if (frame) {
+            this.context.drawImage(img,
+                frame.sx, frame.sy, frame.width, frame.height,
+                elem.x - (frame.width / 2), elem.y - (frame.height / 2), frame.width, frame.height);
+        }
     }
 }
 
@@ -141,7 +151,7 @@ class Animation {
     add_events(list_events) {
         let now = Date.now()
         let ap = this.animation_pool
-        list_events.forEach((eff)=>
+        list_events.forEach((eff) =>
             this.animation_pool.push({
                 'id': eff.id,
                 'x': eff.x,
@@ -160,7 +170,7 @@ class Animation {
                 let index = this.animation_pool.indexOf(elem)
                 this.animation_pool.splice(index, 1);
             } else {
-                let step_number = ((now - elem.start) / this.step_duration >> 0 )
+                let step_number = ((now - elem.start) / this.step_duration >> 0)
                 res_anim.push({'id': elem.id, 'x': elem.x, 'y': elem.y, 'step': step_number})
             }
         })
@@ -208,6 +218,10 @@ function handle_message(event, render, animation) {
     }
 }
 
+function handle_close(event, render) {
+    render.game_over('Connection closed')
+}
+
 function handle_open_socket(event) {
 
     socket.send(JSON.stringify({'name': player_name}));
@@ -227,6 +241,7 @@ window.onload = function () {
         socket = new WebSocket("ws://localhost:8000/ws")
         socket.addEventListener('message', event => handle_message(event, render, animator));
         socket.addEventListener('open', event => handle_open_socket(event));
+        socket.addEventListener('close', event => handle_close(event, render));
         document.addEventListener('keydown', event => evaluate_movement(event, true));
         document.addEventListener('keyup', event => evaluate_movement(event, false));
     }

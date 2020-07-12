@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import JSONResponse
-from starlette.websockets import WebSocket
+from starlette.websockets import WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosedOK
 
 from back.config import ENTITY_PATH, RPS
@@ -48,8 +48,11 @@ async def websocket_endpoint(websocket: WebSocket):
                     shot = 1
                 player.set_action(shot)
                 player.set_moving(angle, ahead)
+        except WebSocketDisconnect as e:
+            print(f'WebSocketDisconnect: {e}')
+            break
         except Exception as e:
-            print(e)
+            print(f'Error: {e}')
             break
 
     app.state.gl.del_player(player)
@@ -90,21 +93,28 @@ async def start_background_tasks():
     asyncio.create_task(response_for_all())
 
 
+async def send_no_await(socket, info):
+    try:
+        await socket.send_json(info)
+    except ConnectionClosedOK as e:
+        print(f'Sending error (ConnectionClosedOK): {e}')
+    except Exception as e:
+        print(f'Sending error: {e}')
+
+
 async def response_for_all():
     last = time.time()
     while True:
-        try:
-            curr = time.time()
-            delta = float((curr - last))
-            last = curr
-            app.state.gl.exec_step(delta)
-            curr_state = app.state.gl.get_state()
-            for socket in app.state.sockets:
-                await socket.send_json(curr_state)
-            await asyncio.sleep(RPS)
-        except ConnectionClosedOK:
-            pass
+        curr = time.time()
+        delta = float((curr - last))
+        last = curr
+        app.state.gl.exec_step(delta)
+        curr_state = app.state.gl.get_state()
+        for socket in app.state.sockets:
+            asyncio.create_task(send_no_await(socket, curr_state))
+
+        await asyncio.sleep(RPS)
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="localhost", port=8000, debug=True)
