@@ -2,7 +2,9 @@ const SEA_COLOR = "#256692";
 const AREA_WIDTH = 3000;
 const AREA_HEIGHT = 2000;
 let DRAW_BORDERS = false;
-const TEXTURE_URL = 'http://localhost/load_data';
+const HOST = 'localhost'
+const TEXTURE_URL = `http://${HOST}/load_data`;
+const WS_URL = `ws://${HOST}/ws`;
 
 let action = {up: false, down: false, left: false, right: false, shot: false};
 let last_action = {};
@@ -238,7 +240,7 @@ window.onload = function () {
         let render = new Render()
         await render.init()
         let animator = new Animation()
-        socket = new WebSocket("ws://localhost/ws")
+        socket = new WebSocket(WS_URL)
         socket.addEventListener('message', event => handle_message(event, render, animator));
         socket.addEventListener('open', event => handle_open_socket(event));
         socket.addEventListener('close', event => handle_close(event, render));
