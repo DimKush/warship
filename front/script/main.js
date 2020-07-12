@@ -2,7 +2,7 @@ const SEA_COLOR = "#256692";
 const AREA_WIDTH = 3000;
 const AREA_HEIGHT = 2000;
 let DRAW_BORDERS = false;
-const HOST = 'localhost'
+const HOST = 'steel-rebbot.herokuapp.com'
 const TEXTURE_URL = `http://${HOST}/load_data`;
 const WS_URL = `ws://${HOST}/ws`;
 
