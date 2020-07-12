@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 fastapi = "*"
 uvicorn = "*"
+gunicorn = "*"
 aioredis = "*"
 aiofiles = "*"
 jinja2 = "*"
