@@ -3,7 +3,7 @@ const AREA_WIDTH = 3000;
 const AREA_HEIGHT = 2000;
 let DRAW_BORDERS = false;
 const HOST = 'steel-rebbot.herokuapp.com'
-const TEXTURE_URL = `http://${HOST}/load_data`;
+const TEXTURE_URL = `https://${HOST}/load_data`;
 const WS_URL = `ws://${HOST}/ws`;
 
 let action = {up: false, down: false, left: false, right: false, shot: false};
