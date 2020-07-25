@@ -10,8 +10,6 @@ class Geometry:
         self.bounds = []
         self.angle_motion = AngleMovement()
         self.vector_motion = Movement()
-        self.z_index = 1
-        self.tangible = True
 
     @property
     def x(self):
