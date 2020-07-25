@@ -131,7 +131,8 @@ async def response_for_all():
         app.state.gl.exec_step(delta)
         curr_state = app.state.gl.get_state()
         for socket in app.state.sockets:
-            asyncio.create_task(send_no_await(socket, curr_state))
+            # asyncio.create_task(send_no_await(socket, curr_state))
+            await send_no_await(socket, curr_state)
 
         await asyncio.sleep(RPS)
 
