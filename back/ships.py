@@ -24,11 +24,11 @@ class MainShip(Ship):
         super().__init__()
         self.name = 'predator'
         self.mobility = 1
-        self.speed = 300
-        self.acceleration = 300
+        self.speed = 200
+        self.acceleration = 150
         self.hp = 100
         self.hp_max = 100
-        self.shot_speed = 3
+        self.shot_speed = 6
         self.bounds = ()
-        self.bullet_damage = 5
-        self.bullet_speed = 200
+        self.bullet_damage = 10
+        self.bullet_speed = 500

@@ -80,15 +80,6 @@ class GeometryLine(Geometry):
         self.angle_motion.moving = 1
         self.angle_motion.angle_curr = r
 
-        self.bounds = [Point(self.x, self.y), Point(self.x, self.y - 12)]
-
-        for point in self.bounds:
-            tmp_x = self.x + (point.x - self.x) * cos(self.angle_motion.angle_curr) - (point.y - self.y) * sin(
-                self.angle_motion.angle_curr)
-            point.y = self.y + (point.y - self.y) * cos(self.angle_motion.angle_curr) + (point.x - self.x) * sin(
-                self.angle_motion.angle_curr)
-            point.x = tmp_x
-
     def next(self, t):
         x_delta = self.vector_motion.current * sin(self.angle_motion.angle_current) * t
         y_delta = self.vector_motion.current * cos(self.angle_motion.angle_current) * t
@@ -99,3 +90,11 @@ class GeometryLine(Geometry):
 
         self.axis.x -= x_delta
         self.axis.y += y_delta
+
+    def rebuild(self):
+        for point in self.bounds:
+            tmp_x = self.x + (point.x - self.x) * cos(self.angle_motion.angle_curr) - (point.y - self.y) * sin(
+                self.angle_motion.angle_curr)
+            point.y = self.y + (point.y - self.y) * cos(self.angle_motion.angle_curr) + (point.x - self.x) * sin(
+                self.angle_motion.angle_curr)
+            point.x = tmp_x
