@@ -13,7 +13,7 @@ from back.ships import MainShip
 class Entity:
     def __init__(self, x: float, y: float):
         self.geometry: Geometry = Geometry(x, y)
-        self.prev_geometry: Geometry = self.geometry
+        self.prev_geometry: Geometry = deepcopy(self.geometry)
         self.id = 0
         self.hp = 1
         self.context_id = ''
@@ -32,7 +32,21 @@ class Entity:
         return self.geometry.angle_motion.angle_current
 
     def next(self, t: float, others):
-        self.prev_geometry = deepcopy(self.geometry)
+        # save stat of geometry without deepcopy? for frequency
+        self.prev_geometry.axis.x = self.geometry.axis.x
+        self.prev_geometry.axis.y = self.geometry.axis.y
+        self.prev_geometry.bounds = self.geometry.bounds[::]
+
+        self.prev_geometry.angle_motion.curr = self.geometry.angle_motion.curr
+        self.prev_geometry.angle_motion.max = self.geometry.angle_motion.max
+        self.prev_geometry.angle_motion.delta = self.geometry.angle_motion.delta
+        self.prev_geometry.angle_motion.moving = self.geometry.angle_motion.moving
+        self.prev_geometry.angle_motion.angle_curr = self.geometry.angle_motion.angle_curr
+
+        self.prev_geometry.vector_motion.curr = self.geometry.vector_motion.curr
+        self.prev_geometry.vector_motion.max = self.geometry.vector_motion.max
+        self.prev_geometry.vector_motion.delta = self.geometry.vector_motion.delta
+        self.prev_geometry.vector_motion.moving = self.geometry.vector_motion.moving
         self.geometry.next(t)
 
         for entity in others:
