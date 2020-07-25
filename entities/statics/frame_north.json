@@ -1,8 +1,8 @@
 {
-  "context_id": "border_0012",
+  "context_id": "frame_north",
   "type": "island",
   "hp_max": 100,
-  "texture": "island_01.png",
+  "texture": "alpha_stub.png",
   "x": 0,
   "y": 0,
   "offset_x": 0,
@@ -17,14 +17,6 @@
     {
       "x": 3000,
       "y": 0
-    },
-    {
-      "x": 3000,
-      "y": -1
-    },
-    {
-      "x": 0,
-      "y": -1
     }
   ]
 }

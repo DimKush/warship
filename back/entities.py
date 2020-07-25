@@ -128,8 +128,9 @@ class Bullet(Entity):
         self.owner_id = owner.id
         self.damage = owner.ship_model.bullet_damage
         self.effect_factory: EffectFactory = owner.effect_factory
-        self.load_body_configuration(f'bullet_{owner.ship_model.name}')
         self.geometry = GeometryLine(x, y, r)
+        self.load_body_configuration(f'bullet_{owner.ship_model.name}')
+        self.geometry.rebuild()
         self.geometry.vector_motion = Movement(curr_value=owner.ship_model.bullet_speed,
                                                max_value=owner.ship_model.bullet_speed)
 
