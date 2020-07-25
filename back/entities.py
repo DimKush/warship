@@ -157,3 +157,6 @@ class Statics(Entity):
         self.geometry.bounds = [Point(p['x'] + obj['x'] + obj['offset_x'],
                                       p['y'] + obj['y'] + obj['offset_y'])
                                 for p in obj['points']]
+
+    def next(self, t: float, others):
+        pass
