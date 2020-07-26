@@ -11,6 +11,9 @@ let last_action = {};
 let send_movement = false;
 let player_id = '';
 
+let back_img = new Image();
+back_img.src = `static/img/space_contrust.png`;
+
 let camera_offset_x = 0;
 let camera_offset_y = 0;
 
@@ -33,6 +36,11 @@ class Render {
             .catch(err => {
                 throw err
             });
+        for (let elem in this.resource_data) {
+            let img = new Image();
+            img.src = `static/img/${this.resource_data[elem].texture}`;
+            this.resource_data[elem].texture = img;
+        };
     }
 
     render_screen(player_data, all_data, effects) {
@@ -65,9 +73,7 @@ class Render {
     }
 
     clean_field() {
-        let img = new Image();
-        img.src = `static/img/space_contrust.png`;
-        this.context.drawImage(img, 0, 0, AREA_WIDTH, AREA_HEIGHT);
+        this.context.drawImage(back_img, 0, 0, AREA_WIDTH, AREA_HEIGHT);
     }
 
     point(x, y) {
@@ -97,9 +103,7 @@ class Render {
         this.context.rotate(elem.r);
 
         let obj = this.resource_data[elem.context_id]
-        let img = new Image();
-        img.src = `static/img/${obj.texture}`;
-        this.context.drawImage(img, obj.offset_x, obj.offset_y, obj.width, obj.height);
+        this.context.drawImage(obj.texture, obj.offset_x, obj.offset_y, obj.width, obj.height);
         this.context.restore();
 
         switch (elem.type) {
@@ -144,9 +148,7 @@ class Render {
 
     minimap(player, all_elems) {
         let map_size = 250;
-        let img = new Image();
-        img.src = `static/img/space_contrust.png`;
-        this.context.drawImage(img, this.screen_width - map_size, this.screen_height - map_size, map_size, map_size);
+        this.context.drawImage(back_img, this.screen_width - map_size, this.screen_height - map_size, map_size, map_size);
         this.context.strokeStyle = '#18455f';
         this.context.lineWidth = 2;
         this.context.strokeRect(this.screen_width - map_size, this.screen_height - map_size, map_size, map_size);
@@ -169,11 +171,9 @@ class Render {
 
     animation(elem) {
         let animation = this.resource_data[elem.id]
-        let img = new Image();
-        img.src = `static/img/${animation.texture}`;
         let frame = animation.frames[elem.step]
         if (frame) {
-            this.context.drawImage(img,
+            this.context.drawImage(animation.texture,
                 frame.sx, frame.sy, frame.width, frame.height,
                 elem.x - (frame.width / 2), elem.y - (frame.height / 2), frame.width, frame.height);
         }
