@@ -43,7 +43,7 @@ class Render {
         };
     }
 
-    render_screen(player_data, all_data, effects) {
+    render_screen(player_data, all_data, effects, frame_time) {
 
 
         if (player_data) {
@@ -67,6 +67,7 @@ class Render {
             effects.forEach((elem) => this.animation(elem))
             this.context.translate(-camera_offset_x, -camera_offset_y);
             this.minimap(player_data, all_data)
+            this.info(frame_time)
         } else {
             this.game_over('Game over')
         }
@@ -169,6 +170,12 @@ class Render {
         });
     }
 
+    info(info) {
+        this.context.fillStyle = "white";
+        this.context.font = 'bold 13px Arial';
+        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`,  this.screen_width - 200, 24)
+    }
+
     animation(elem) {
         let animation = this.resource_data[elem.id]
         let frame = animation.frames[elem.step]
@@ -254,7 +261,7 @@ function handle_message(event, render, animation) {
             return elem.id === player_id
         })
         animation.add_events(data.effects)
-        render.render_screen(self_object, data.entities, animation.get_current_frames());
+        render.render_screen(self_object, data.entities, animation.get_current_frames(), data.frame_time);
     }
 }
 
