@@ -6,7 +6,7 @@ from os.path import join
 from back.config import SHIPS_PATH, STATICS_PATH
 from back.effects import EffectFactory
 from back.geometry import Geometry, GeometryLine
-from back.point import Point, Movement, AngleMovement, PointEncoder
+from back.point import Movement, AngleMovement
 from back.ships import MainShip
 
 
@@ -33,9 +33,10 @@ class Entity:
 
     def next(self, t: float, others):
         # save stat of geometry without deepcopy? for frequency
-        self.prev_geometry.axis.x = self.geometry.axis.x
-        self.prev_geometry.axis.y = self.geometry.axis.y
+        self.prev_geometry.x = self.geometry.x
+        self.prev_geometry.y = self.geometry.y
         self.prev_geometry.bounds = self.geometry.bounds[::]
+        self.prev_geometry.bounding_box = self.geometry.bounding_box[::]
 
         self.prev_geometry.angle_motion.curr = self.geometry.angle_motion.curr
         self.prev_geometry.angle_motion.max = self.geometry.angle_motion.max
@@ -78,20 +79,21 @@ class Entity:
         with open(f'{join(SHIPS_PATH, file_name)}', 'r') as f:
             obj = json.loads(f.read())
             self.context_id = obj['context_id']
-            self.geometry.bounds = [Point(p['x'] + obj['offset_x'] + self.x,
-                                          p['y'] + obj['offset_y'] + self.y)
+            self.geometry.bounds = [[p['x'] + obj['offset_x'] + self.x,
+                                          p['y'] + obj['offset_y'] + self.y]
                                     for p in obj['points']]
+        self.geometry.eval_true_bounding_box()
 
     def get_info(self):
-        return json.loads(json.dumps({'id': self.id,
-                                      'type': type(self).__name__,
-                                      'x': self.x,
-                                      'y': self.y,
-                                      'r': self.r,
-                                      'bounds': self.geometry.bounds,
-                                      'aabb': self.geometry.bounding_box,
-                                      'context_id': self.context_id
-                                      }, cls=PointEncoder))
+        return {'id': self.id,
+                'type': type(self).__name__,
+                'x': self.x,
+                'y': self.y,
+                'r': self.r,
+                'bounds': self.geometry.bounds,
+                'aabb': self.geometry.bounding_box,
+                'context_id': self.context_id
+                }
 
 
 class Player(Entity):
@@ -105,6 +107,7 @@ class Player(Entity):
                                                max_value=self.ship_model.speed)
         self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 2.8,
                                                    max_value=self.ship_model.mobility)
+        self.geometry.eval_approximately_bounding_box()
         self.hp = self.ship_model.hp
         self.hp_max = self.ship_model.hp_max
         self.shot_counter = 0
@@ -145,6 +148,7 @@ class Bullet(Entity):
         self.geometry = GeometryLine(x, y, r)
         self.load_body_configuration(f'bullet_{owner.ship_model.name}')
         self.geometry.rebuild()
+        self.geometry.eval_true_bounding_box()
         self.geometry.vector_motion = Movement(curr_value=owner.ship_model.bullet_speed,
                                                max_value=owner.ship_model.bullet_speed)
 
@@ -167,10 +171,11 @@ class Statics(Entity):
         obj = json.loads(f.read())
 
         self.context_id = obj['context_id']
-        self.geometry.axis.x, self.geometry.axis.y = obj['x'], obj['y']
-        self.geometry.bounds = [Point(p['x'] + obj['x'] + obj['offset_x'],
-                                      p['y'] + obj['y'] + obj['offset_y'])
+        self.geometry.x, self.geometry.y = obj['x'], obj['y']
+        self.geometry.bounds = [[p['x'] + obj['x'] + obj['offset_x'],
+                                      p['y'] + obj['y'] + obj['offset_y']]
                                 for p in obj['points']]
+        self.geometry.eval_true_bounding_box()
 
     def next(self, t: float, others):
         pass
