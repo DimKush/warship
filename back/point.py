@@ -1,19 +1,3 @@
-from json import JSONEncoder
-
-
-class PointEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Point):
-            return obj.x, obj.y
-        else:
-            return JSONEncoder.default(self, obj)
-
-
-class Point:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-
 
 class Movement:
     def __init__(self, curr_value=0.0, delta=0.0, max_value=0.0):
