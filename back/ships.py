@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
-
-from back.point import Point
+from typing import List
 
 
 class Ship(ABC):
@@ -16,7 +14,7 @@ class Ship(ABC):
         self.shot_speed: int
         self.bullet_damage: int
         self.bullet_speed: int
-        self.bounds: Tuple[Point]
+        self.bounds: List
 
 
 class MainShip(Ship):

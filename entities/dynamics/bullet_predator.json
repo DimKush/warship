@@ -6,15 +6,15 @@
   "x": 0,
   "y": 0,
   "offset_x": -3,
-  "offset_y": -60,
+  "offset_y": -35,
   "width": 5,
-  "height": 60,
+  "height": 35,
   "points": [
     {
       "x": 0, "y": 0
     },
     {
-      "x": 0, "y": 60
+      "x": 0, "y": 35
     }
   ]
 }
