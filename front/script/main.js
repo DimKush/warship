@@ -120,13 +120,6 @@ class Render {
             this.point(elem.x, elem.y)
             this.context.fillStyle = "rgba(23,236,112,0.58)";
             this.context.strokeStyle = "rgb(23,236,112)";
-            this.context.beginPath();
-            this.context.moveTo(elem.bounds[elem.bounds.length - 1][0], elem.bounds[elem.bounds.length - 1][1]);
-            this.context.outlineColor = "rgba(1,173,72,0.89)";
-            elem.bounds.forEach((e) => {
-                this.context.lineTo(e[0], e[1]);
-            });
-            this.context.fill();
         }
     }
 

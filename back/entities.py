@@ -90,7 +90,6 @@ class Entity:
                 'x': self.x,
                 'y': self.y,
                 'r': self.r,
-                'bounds': self.geometry.bounds,
                 'aabb': self.geometry.bounding_box,
                 'context_id': self.context_id
                 }
