@@ -11,6 +11,9 @@ let last_action = {};
 let send_movement = false;
 let player_id = '';
 
+let back_img = new Image();
+back_img.src = `static/img/space_contrust.png`;
+
 let camera_offset_x = 0;
 let camera_offset_y = 0;
 
@@ -33,9 +36,14 @@ class Render {
             .catch(err => {
                 throw err
             });
+        for (let elem in this.resource_data) {
+            let img = new Image();
+            img.src = `static/img/${this.resource_data[elem].texture}`;
+            this.resource_data[elem].texture = img;
+        };
     }
 
-    render_screen(player_data, all_data, effects) {
+    render_screen(player_data, all_data, effects, frame_time) {
 
 
         if (player_data) {
@@ -56,25 +64,31 @@ class Render {
             all_data.forEach((elem) => {
                 this.render_entity(elem)
             });
-
             effects.forEach((elem) => this.animation(elem))
             this.context.translate(-camera_offset_x, -camera_offset_y);
+            this.minimap(player_data, all_data)
+            this.info(frame_time)
         } else {
             this.game_over('Game over')
         }
     }
 
     clean_field() {
-        let img = new Image();
-        img.src = `static/img/space_contrust.png`;
-        this.context.drawImage(img, 0, 0, AREA_WIDTH, AREA_HEIGHT);
+        this.context.drawImage(back_img, 0, 0, AREA_WIDTH, AREA_HEIGHT);
     }
 
-    point(x, y, canvas) {
-        canvas.beginPath();
+    point(x, y) {
+        this.context.beginPath();
         this.context.fillStyle = "rgb(52,251,6)";
-        canvas.arc(x, y, 1, 0, 2 * Math.PI, true);
-        canvas.fill();
+        this.context.arc(x, y, 1, 0, 2 * Math.PI, true);
+        this.context.fill();
+    }
+
+    point_minimap(x, y, color, radius) {
+        this.context.beginPath();
+        this.context.fillStyle = color;
+        this.context.arc(x, y, radius, 0, 2 * Math.PI, true);
+        this.context.fill();
     }
 
     game_over(text) {
@@ -90,9 +104,7 @@ class Render {
         this.context.rotate(elem.r);
 
         let obj = this.resource_data[elem.context_id]
-        let img = new Image();
-        img.src = `static/img/${obj.texture}`;
-        this.context.drawImage(img, obj.offset_x, obj.offset_y, obj.width, obj.height);
+        this.context.drawImage(obj.texture, obj.offset_x, obj.offset_y, obj.width, obj.height);
         this.context.restore();
 
         switch (elem.type) {
@@ -105,16 +117,9 @@ class Render {
         if (DRAW_BORDERS) {
             this.context.rect(elem.aabb[0], elem.aabb[1], elem.aabb[2] - elem.aabb[0], elem.aabb[3] - elem.aabb[1]);
             this.context.stroke();
-            this.point(elem.x, elem.y, this.context)
+            this.point(elem.x, elem.y)
             this.context.fillStyle = "rgba(23,236,112,0.58)";
             this.context.strokeStyle = "rgb(23,236,112)";
-            this.context.beginPath();
-            this.context.moveTo(elem.bounds[elem.bounds.length - 1][0], elem.bounds[elem.bounds.length - 1][1]);
-            this.context.outlineColor = "rgba(1,173,72,0.89)";
-            elem.bounds.forEach((e) => {
-                this.context.lineTo(e[0], e[1]);
-            });
-            this.context.fill();
         }
     }
 
@@ -135,13 +140,40 @@ class Render {
         this.context.fillText(elem.name, elem.x - elem.hp_max / 2 + 2, elem.aabb[1] - 24, elem.hp_max)
     }
 
+    minimap(player, all_elems) {
+        let map_size = 250;
+        this.context.drawImage(back_img, this.screen_width - map_size, this.screen_height - map_size, map_size, map_size);
+        this.context.strokeStyle = '#18455f';
+        this.context.lineWidth = 2;
+        this.context.strokeRect(this.screen_width - map_size, this.screen_height - map_size, map_size, map_size);
+        all_elems.forEach((elem) => {
+            let mini_x = elem.x * map_size / AREA_WIDTH + this.screen_width - map_size
+            let mini_y = elem.y * map_size / AREA_HEIGHT + this.screen_height - map_size
+            switch (elem.type) {
+                case 'Player':
+                    if (player.id === elem.id) {
+                        this.point_minimap(mini_x, mini_y, "rgb(92,251,6)", 3);
+                    } else {
+                        this.point_minimap(mini_x, mini_y, "rgb(251,35,6)", 2)
+                    }
+                    break;
+                case 'Bullet':
+                    this.point_minimap(mini_x, mini_y, "rgb(248,176,51)", 1);
+            }
+        });
+    }
+
+    info(info) {
+        this.context.fillStyle = "white";
+        this.context.font = 'bold 13px Arial';
+        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`,  this.screen_width - 200, 24)
+    }
+
     animation(elem) {
         let animation = this.resource_data[elem.id]
-        let img = new Image();
-        img.src = `static/img/${animation.texture}`;
         let frame = animation.frames[elem.step]
         if (frame) {
-            this.context.drawImage(img,
+            this.context.drawImage(animation.texture,
                 frame.sx, frame.sy, frame.width, frame.height,
                 elem.x - (frame.width / 2), elem.y - (frame.height / 2), frame.width, frame.height);
         }
@@ -222,7 +254,7 @@ function handle_message(event, render, animation) {
             return elem.id === player_id
         })
         animation.add_events(data.effects)
-        render.render_screen(self_object, data.entities, animation.get_current_frames());
+        render.render_screen(self_object, data.entities, animation.get_current_frames(), data.frame_time);
     }
 }
 

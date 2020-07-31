@@ -130,11 +130,12 @@ async def response_for_all():
         last = curr
         app.state.gl.exec_step(delta)
         curr_state = app.state.gl.get_state()
+        curr_state['frame_time'] = delta
         for socket in app.state.sockets:
             # asyncio.create_task(send_no_await(socket, curr_state))
             await send_no_await(socket, curr_state)
 
-        await asyncio.sleep(RPS)
+        await asyncio.sleep(RPS - (time.time() - curr))
 
 
 if __name__ == "__main__":
