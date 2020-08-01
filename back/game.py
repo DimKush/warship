@@ -1,20 +1,21 @@
 from os import listdir
 from random import randint
 
-from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH
+from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH, ENEMY_COUNT
 from back.effects import EffectFactory
-from back.entities import Player, Statics
+from back.entities import Player, Statics, Enemy
 
 
 class Game:
     def __init__(self):
         self.entities = []
+        self.enemies = 0
         self.effect_factory = EffectFactory()
 
     def init_scene(self):
         self.load_objects()
 
-    def add_player(self):
+    def add_player(self, player_type = Player):
         distance = 150
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
@@ -23,7 +24,7 @@ class Game:
                 if entity.geometry.box_collision(bbox):
                     break
             else:
-                player = Player(x, y)
+                player = player_type(x, y)
                 player.set_effect_factory(self.effect_factory)
                 self.entities.append(player)
                 return player
@@ -38,7 +39,13 @@ class Game:
             if bullet := entity.do_action(time_delta):
                 self.entities.append(bullet)
             if entity.hp <= 0:
+                if isinstance(entity, Enemy):
+                    self.enemies -= 1
                 self.entities.remove(entity)
+
+        if self.enemies < ENEMY_COUNT:
+            self.add_player(Enemy)
+            self.enemies += 1
 
     def get_state(self):
         return {
