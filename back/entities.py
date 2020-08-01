@@ -2,12 +2,13 @@ import json
 import uuid
 from copy import deepcopy
 from os.path import join
+from random import randint
 
 from back.config import SHIPS_PATH, STATICS_PATH
-from back.effects import EffectFactory
+from back.effects import EffectFactory, ActionFactory
 from back.geometry import Geometry, GeometryLine
 from back.point import Movement, AngleMovement
-from back.ships import MainShip
+from back.ships import MainShip, RenegadeShip
 
 
 class Entity:
@@ -178,3 +179,32 @@ class Statics(Entity):
 
     def next(self, t: float, others):
         pass
+
+
+class Enemy(Player):
+    def __init__(self, x: float, y: float):
+        super().__init__(x, y)
+        self.ship_model = RenegadeShip()
+        self.load_body_configuration(self.ship_model.name)
+        self.actions = ActionFactory()
+        self.set_action(1)
+        self.actions.add_to_pool(150, self.set_moving, randint(-1, 1), 1)
+        self.actions.add_to_pool(250, self.set_moving, randint(-1, 1), 1)
+
+    def action_on_collision(self, entity):
+        super().action_on_collision(entity)
+        if isinstance(entity, Player):
+            pass
+        elif isinstance(entity, Statics):
+            self.actions.clear_pool()
+            self.actions.add_to_pool(randint(20, 250), self.set_moving, randint(-1, 1), 0)
+            self.actions.add_to_pool(150, self.set_moving, randint(-1, 1), 1)
+            self.actions.add_to_pool(250, self.set_moving, randint(-1, 1), 1)
+            self.actions.add_to_pool(100, self.set_moving, randint(-1, 1), 1)
+            self.actions.add_to_pool(1, self.set_moving, 0, 1)
+
+    def next(self, t: float, others):
+        super().next(t, others)
+        self.actions.do_tick()
+
+
