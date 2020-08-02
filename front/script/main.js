@@ -10,6 +10,7 @@ let action = {up: false, down: false, left: false, right: false, shot: false};
 let last_action = {};
 let send_movement = false;
 let player_id = '';
+let player_score = 0;
 
 let back_img = new Image();
 back_img.src = `static/img/space_contrust.png`;
@@ -40,7 +41,8 @@ class Render {
             let img = new Image();
             img.src = `static/img/${this.resource_data[elem].texture}`;
             this.resource_data[elem].texture = img;
-        };
+        }
+        ;
     }
 
     render_screen(player_data, all_data, effects, frame_time) {
@@ -66,8 +68,9 @@ class Render {
             this.context.translate(-camera_offset_x, -camera_offset_y);
             this.minimap(player_data, all_data)
             this.info(frame_time)
+            this.score(player_data)
         } else {
-            this.game_over('Game over')
+            this.game_over('Game over', player_score)
         }
     }
 
@@ -89,11 +92,17 @@ class Render {
         this.context.fill();
     }
 
-    game_over(text) {
+    game_over(text, score) {
         this.clean_field()
         this.context.fillStyle = "white";
         this.context.font = 'bold 33px Arial';
-        this.context.fillText(text, this.screen_width / 2, this.screen_height / 2)
+        this.context.fillText(text, this.screen_width / 2, this.screen_height / 2 - 17)
+
+        if (score) {
+            this.context.fillStyle = "yellow";
+            this.context.font = 'bold 33px Arial';
+            this.context.fillText(`Score: ${score}`, this.screen_width / 2, this.screen_height / 2 + 17)
+        }
     }
 
     render_entity(elem) {
@@ -166,7 +175,13 @@ class Render {
     info(info) {
         this.context.fillStyle = "white";
         this.context.font = 'bold 13px Arial';
-        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`,  this.screen_width - 200, 24)
+        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`, this.screen_width - 200, 24)
+    }
+
+    score(player) {
+        this.context.fillStyle = "yellow";
+        this.context.font = 'bold 13px Arial';
+        this.context.fillText(`score: ${player.score}`, this.screen_width - 200, 44)
     }
 
     animation(elem) {
@@ -253,6 +268,9 @@ function handle_message(event, render, animation) {
         let self_object = data.entities.find(function (elem) {
             return elem.id === player_id
         })
+        if (self_object) {
+            player_score = self_object.score;
+        }
         animation.add_events(data.effects)
         render.render_screen(self_object, data.entities, animation.get_current_frames(), data.frame_time);
     }

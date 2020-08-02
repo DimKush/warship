@@ -20,7 +20,8 @@
             }
             window.location.href = '/game?user_name=' + player_name;
         }
-        window.addEventListener('keydown', function(event) {
+
+        window.addEventListener('keydown', function (event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 redirect_to_start()
@@ -34,7 +35,7 @@
         <p>Steel rebbot</p>
     </div>
     <label for="name_field"></label>
-    <input type="text" id="name_field" autofocus="autofocus" placeholder="input nick"/>
+    <input autofocus="autofocus" id="name_field" placeholder="input nick" type="text"/>
     <div id="go_game" onclick="redirect_to_start()">
         <p>Start</p>
     </div>

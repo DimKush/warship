@@ -6,11 +6,12 @@ body {
 }
 
 html, body {
-  width:  100%;
-  margin: 0;
+    width: 100%;
+    margin: 0;
 }
 
 p {
-    font-family: 'Share Tech Mono', monospace; color: ghostwhite;
+    font-family: 'Share Tech Mono', monospace;
+    color: ghostwhite;
     margin: 0;
 }
