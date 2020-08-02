@@ -37,9 +37,9 @@ class Geometry:
 
         for point in self.bounds:
             tmp_x = (point[0] - self.x) * cos(self.angle_motion.current * t) + self.x - \
-                (point[1] - self.y) * sin(self.angle_motion.current * t) - x_delta
+                    (point[1] - self.y) * sin(self.angle_motion.current * t) - x_delta
             point[1] = (point[1] - self.y) * cos(self.angle_motion.current * t) + self.y + \
-                (point[0] - self.x) * sin(self.angle_motion.current * t) + y_delta
+                       (point[0] - self.x) * sin(self.angle_motion.current * t) + y_delta
             point[0] = tmp_x
 
         self.x -= x_delta

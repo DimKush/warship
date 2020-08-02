@@ -1,5 +1,3 @@
-
-
 class EffectFactory:
     def __init__(self):
         self.pool = []

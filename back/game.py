@@ -1,9 +1,9 @@
 from os import listdir
 from random import randint
 
+import back.entities as ee
 from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH, ENEMY_COUNT
 from back.effects import EffectFactory
-from back.entities import Player, Statics, Enemy
 
 
 class Game:
@@ -15,7 +15,7 @@ class Game:
     def init_scene(self):
         self.load_objects()
 
-    def add_player(self, player_type = Player):
+    def add_player(self, player_type=ee.Player):
         distance = 150
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
@@ -39,12 +39,12 @@ class Game:
             if bullet := entity.do_action(time_delta):
                 self.entities.append(bullet)
             if entity.hp <= 0:
-                if isinstance(entity, Enemy):
+                if isinstance(entity, ee.Enemy):
                     self.enemies -= 1
                 self.entities.remove(entity)
 
         if self.enemies < ENEMY_COUNT:
-            self.add_player(Enemy)
+            self.add_player(ee.Enemy)
             self.enemies += 1
 
     def get_state(self):
@@ -56,6 +56,6 @@ class Game:
 
     def load_objects(self):
         for file in listdir(STATICS_PATH):
-            stx = Statics(0, 0)
+            stx = ee.Statics(0, 0)
             stx.load_body_configuration(file)
             self.entities.append(stx)
