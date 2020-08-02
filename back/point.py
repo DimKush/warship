@@ -1,4 +1,3 @@
-
 class Movement:
     def __init__(self, curr_value=0.0, delta=0.0, max_value=0.0):
         self.curr = curr_value
