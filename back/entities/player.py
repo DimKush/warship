@@ -22,6 +22,7 @@ class Player(Entity):
         self.hp_max = self.ship_model.hp_max
         self.shot_counter = 0
         self.shoting = False
+        self.score = 0
 
     def set_action(self, flag: int):
         self.shoting = flag != 0
@@ -44,5 +45,10 @@ class Player(Entity):
 
     def get_info(self):
         data = super(Player, self).get_info()
-        data.update({'hp': self.hp, 'hp_max': self.hp_max, 'name': self.name})
+        additional_info = {'hp': self.hp,
+                           'hp_max': self.hp_max,
+                           'name': self.name,
+                           'score': self.score
+                           }
+        data.update(additional_info)
         return data
