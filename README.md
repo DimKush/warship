@@ -1,8 +1,8 @@
 # Steel rebbot
 ### descripltion
-2d browser multiplayer game for PC about Space and Spaceships
+2d browser multiplayer game for PC about Space and Spaceships 
 
-![Image of Space](https://github.com/dIgor93/warship/blob/master/front/img/demo.png)
+![Image of Space](https://github.com/dIgor93/warship/blob/master/front/img/demo.PNG)
 
 
 ### where to play
