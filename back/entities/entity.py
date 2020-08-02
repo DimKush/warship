@@ -50,8 +50,8 @@ class Entity:
 
         for entity in others:
             if entity != self and \
-                    not (isinstance(self, Bullet) and self.owner_id == entity.id) and \
-                    not (isinstance(entity, Bullet) and entity.owner_id == self.id):
+                    not (isinstance(self, Bullet) and self.owner.id == entity.id) and \
+                    not (isinstance(entity, Bullet) and entity.owner.id == self.id):
                 if self.geometry.box_collision(entity.geometry.bounding_box) and \
                         self.geometry.detail_collision(entity.geometry.bounds):
                     self.action_on_collision(entity)

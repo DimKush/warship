@@ -8,7 +8,7 @@ class Bullet(Entity):
     def __init__(self, x: float, y: float, r: float, player_owner):
         super().__init__(x, y)
         self.id = 1
-        self.owner_id = player_owner.id
+        self.owner = player_owner
         self.damage = player_owner.ship_model.bullet_damage
         self.effect_factory: EffectFactory = player_owner.effect_factory
         self.geometry = GeometryLine(x, y, r)
@@ -22,6 +22,10 @@ class Bullet(Entity):
         import back.entities as ee
         if isinstance(entity, ee.Player):
             entity.hp -= self.damage
+            if entity.hp > 0:
+                self.owner.score += 10
+            else:
+                self.owner.score += 50
             self.hp = 0
         elif isinstance(entity, ee.Statics):
             self.hp = 0
