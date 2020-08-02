@@ -91,14 +91,3 @@ class Entity:
                 'aabb': self.geometry.bounding_box,
                 'context_id': self.context_id
                 }
-
-
-
-
-
-
-
-
-
-
-

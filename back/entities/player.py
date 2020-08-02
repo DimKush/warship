@@ -1,9 +1,9 @@
 import uuid
 
+import back.entities as ee
 from back.entities.entity import Entity
 from back.point import Movement, AngleMovement
 from back.ships import Ship, MainShip
-import back.entities as ee
 
 
 class Player(Entity):
