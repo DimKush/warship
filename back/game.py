@@ -1,9 +1,9 @@
 from os import listdir
 from random import randint
 
+import back.entities as ee
 from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH, ENEMY_COUNT
 from back.effects import EffectFactory
-import back.entities as ee
 
 
 class Game:

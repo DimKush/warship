@@ -1,8 +1,8 @@
 from random import randint
 
+import back.entities as ee
 from back.effects import ActionFactory
 from back.ships import RenegadeShip
-import back.entities as ee
 
 
 class Enemy(ee.Player):

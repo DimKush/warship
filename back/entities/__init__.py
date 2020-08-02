@@ -1,5 +1,5 @@
 from .bullet import Bullet
-from .player import Player
-from .entity import Entity
 from .enemy import Enemy
+from .entity import Entity
+from .player import Player
 from .statics import Statics

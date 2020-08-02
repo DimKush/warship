@@ -40,7 +40,8 @@ class Render {
             let img = new Image();
             img.src = `static/img/${this.resource_data[elem].texture}`;
             this.resource_data[elem].texture = img;
-        };
+        }
+        ;
     }
 
     render_screen(player_data, all_data, effects, frame_time) {
@@ -166,7 +167,7 @@ class Render {
     info(info) {
         this.context.fillStyle = "white";
         this.context.font = 'bold 13px Arial';
-        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`,  this.screen_width - 200, 24)
+        this.context.fillText(`frame time: ${Math.round(info * 100000) / 100000}`, this.screen_width - 200, 24)
     }
 
     animation(elem) {
