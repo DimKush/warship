@@ -15,7 +15,7 @@ class Game:
     def init_scene(self):
         self.load_objects()
 
-    def add_player(self, player_type = Player):
+    def add_player(self, player_type=Player):
         distance = 150
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)

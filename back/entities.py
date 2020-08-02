@@ -81,7 +81,7 @@ class Entity:
             obj = json.loads(f.read())
             self.context_id = obj['context_id']
             self.geometry.bounds = [[p['x'] + obj['offset_x'] + self.x,
-                                          p['y'] + obj['offset_y'] + self.y]
+                                     p['y'] + obj['offset_y'] + self.y]
                                     for p in obj['points']]
         self.geometry.eval_true_bounding_box()
 
@@ -173,7 +173,7 @@ class Statics(Entity):
         self.context_id = obj['context_id']
         self.geometry.x, self.geometry.y = obj['x'], obj['y']
         self.geometry.bounds = [[p['x'] + obj['x'] + obj['offset_x'],
-                                      p['y'] + obj['y'] + obj['offset_y']]
+                                 p['y'] + obj['y'] + obj['offset_y']]
                                 for p in obj['points']]
         self.geometry.eval_true_bounding_box()
 
@@ -206,5 +206,3 @@ class Enemy(Player):
     def next(self, t: float, others):
         super().next(t, others)
         self.actions.do_tick()
-
-
