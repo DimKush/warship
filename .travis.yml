@@ -3,7 +3,8 @@ python:
   - "3.8"
 # command to install dependencies
 install:
+  - pipenv lock
   - pipenv install
 # command to run tests
 script:
-  - pytest
+  - pytest --cov-report term --cov=./back /tests
