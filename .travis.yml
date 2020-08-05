@@ -8,4 +8,4 @@ install:
 script:
   - pytest --cov-report term  --cov=./back
 after_success:
-  - coveralls
+  - codecov
