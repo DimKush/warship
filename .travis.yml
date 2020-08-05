@@ -6,4 +6,6 @@ install:
   - pipenv install --dev
 # command to run tests
 script:
-  - pytest --cov=./back
+  - pytest --cov-report term  --cov=./back
+after_success:
+  - codecov
