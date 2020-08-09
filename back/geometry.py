@@ -25,8 +25,7 @@ class Geometry:
 
     def eval_approximately_bounding_box(self):
         s = 40
-        if self.bounds is not None:
-            self.bounding_box = [self.x - s, self.y - s, self.x + s, self.y + s]
+        self.bounding_box = [self.x - s, self.y - s, self.x + s, self.y + s]
 
     def next(self, t):
         self.angle_motion.set_next(t)

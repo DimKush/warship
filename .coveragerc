@@ -1,0 +1,10 @@
+[run]
+branch = True
+
+[report]
+exclude_lines =
+    pragma: no cover
+    ^[A-Z]+.*
+    ^from
+    ^import
+    ^if __name__ == "__main__":
