@@ -28,10 +28,8 @@ class Test(TestCase):
     def test_get_info(self):
         exp_res = {'id': 1,
                    'type': 'Bullet',
-                   'x': 1,
-                   'y': 2,
-                   'r': 1.5707963267948966,
-                   'aabb': [1.0, 2.999999999999998, 36.0, 3.0],
+                   'c': '1 2 1.57',
+                   'aabb': (1, 2, 36, 3),
                    'context_id': 'ship_00123412'}
         res = self.ent.get_info()
         self.assertEqual(exp_res, res)
