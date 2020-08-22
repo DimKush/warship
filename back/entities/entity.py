@@ -49,12 +49,12 @@ class Entity:
         self.geometry.next(t)
 
         for entity in others:
-            if entity != self and \
-                    not (isinstance(self, Bullet) and self.owner.id == entity.id) and \
-                    not (isinstance(entity, Bullet) and entity.owner.id == self.id):
-                if self.geometry.box_collision(entity.geometry.bounding_box) and \
-                        self.geometry.detail_collision(entity.geometry.bounds):
-                    self.action_on_collision(entity)
+            if entity != self:
+                if not (isinstance(self, Bullet) and self.owner.id == entity.id) and \
+                        not (isinstance(entity, Bullet) and entity.owner.id == self.id):
+                    if self.geometry.box_collision(entity.geometry.bounding_box):
+                        if self.geometry.detail_collision(entity.geometry.bounds):
+                            self.action_on_collision(entity)
 
     def action_on_collision(self, entity):
         pass
@@ -85,9 +85,7 @@ class Entity:
     def get_info(self):
         return {'id': self.id,
                 'type': type(self).__name__,
-                'x': self.x,
-                'y': self.y,
-                'r': self.r,
-                'aabb': self.geometry.bounding_box,
+                'c': f'{int(self.x)} {int(self.y)} {round(self.r, 2)}',
+                'aabb': self.geometry.bounding_box_int,
                 'context_id': self.context_id
                 }
