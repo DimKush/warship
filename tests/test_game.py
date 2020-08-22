@@ -6,7 +6,7 @@ from back.game import Game
 class Test(TestCase):
     def setUp(self):
         self.game = Game()
-        self.game.load_objects()
+        self.game.init_scene()
 
     def test_init_scene(self):
         self.assertEqual(16, len(self.game.entities))

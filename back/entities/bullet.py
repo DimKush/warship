@@ -19,17 +19,20 @@ class Bullet(Entity):
                                                max_value=player_owner.ship_model.bullet_speed)
 
     def action_on_collision(self, entity):
-        import back.entities as ee
-        if isinstance(entity, ee.Player):
+        from back.entities import Bullet, Statics, Player
+        if isinstance(entity, Player):
             entity.hp -= self.damage
             if entity.hp > 0:
                 self.owner.score += 10
             else:
                 self.owner.score += 50
             self.hp = 0
-        elif isinstance(entity, ee.Statics):
+        elif isinstance(entity, Statics):
             self.hp = 0
-        elif isinstance(entity, ee.Bullet):
+        elif isinstance(entity, Bullet):
             self.hp = 0
             entity.hp = 0
+        else:
+            print(f'Not described case for type {type(entity)}')
+
         self.effect_factory.add_to_pool('exp1', self.x, self.y)
