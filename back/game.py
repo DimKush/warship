@@ -1,4 +1,5 @@
 from os import listdir
+from queue import Queue
 from random import randint
 
 import back.entities as ee
@@ -11,6 +12,7 @@ class Game:
         self.entities = []
         self.enemies = 0
         self.effect_factory = EffectFactory()
+        self.q = Queue(maxsize=100)
 
     def init_scene(self):
         self.load_objects()
@@ -47,11 +49,19 @@ class Game:
             self.add_player(ee.Enemy)
             self.enemies += 1
 
+        self.q.put_nowait({'effects': self.effect_factory, 'entities': self.entities, 'enemies': self.enemies})
+
     def get_state(self):
+        state = None
+        while self.q.qsize() > 0:
+            state = self.q.get_nowait()
+
+        if state is None:
+            return
         return {
-            'entities_count': len(self.entities),
-            'entities': [pl.get_info() for pl in self.entities],
-            'effects': self.effect_factory.get_effects()
+            'entities_count': len(state['entities']),
+            'entities': [pl.get_info() for pl in state['entities']],
+            'effects': state['effects'].get_effects()
         }
 
     def load_objects(self):

@@ -23,3 +23,9 @@ class Statics(Entity):
 
     def next(self, t: float, others):
         pass
+
+    def get_info(self):
+        data = super(Statics, self).get_info()
+        del data['id']
+        del data['c']
+        return data
