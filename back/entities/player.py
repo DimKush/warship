@@ -9,7 +9,7 @@ from back.ships import Ship, MainShip
 class Player(Entity):
     def __init__(self, x: float, y: float, ship_model: Ship = MainShip):
         super().__init__(x, y)
-        self.id = str(uuid.uuid1())
+        self.id = str(uuid.uuid1())[:8]
         self.name = ''
         self.ship_model = ship_model()
         self.load_body_configuration(self.ship_model.name)

@@ -109,16 +109,21 @@ async def startup_event():
 
 
 async def start_background_tasks():
-    asyncio.create_task(response_for_all())
+    loop = asyncio.get_event_loop()
+    loop.create_task(tick())
+    loop.create_task(response_for_all())
 
 
-async def send_no_await(socket, info):
-    try:
-        await socket.send_json(info)
-    except ConnectionClosedOK as e:
-        print(f'Sending error (ConnectionClosedOK): {e}')
-    except Exception as e:
-        print(f'Sending error: {e}')
+async def tick():
+    last = time.time()
+    while True:
+        curr = time.time()
+        delta = float((curr - last))
+        last = curr
+        app.state.gl.exec_step(delta)
+
+        pending = RPS - (time.time() - curr)
+        await asyncio.sleep(RPS if pending < 0 else pending)
 
 
 async def response_for_all():
@@ -127,14 +132,19 @@ async def response_for_all():
         curr = time.time()
         delta = float((curr - last))
         last = curr
-        app.state.gl.exec_step(delta)
-        curr_state = app.state.gl.get_state()
-        curr_state['frame_time'] = delta
-        for socket in app.state.sockets:
-            # asyncio.create_task(send_no_await(socket, curr_state))
-            await send_no_await(socket, curr_state)
 
-        await asyncio.sleep(RPS - (time.time() - curr))
+        curr_state = app.state.gl.get_state()
+        if curr_state != {}:
+            curr_state['frame_time'] = delta
+            for socket in app.state.sockets:
+                try:
+                    await socket.send_json(curr_state)
+                except ConnectionClosedOK as e:
+                    print(f'Sending error (ConnectionClosedOK): {e}')
+                except Exception as e:
+                    print(f'Sending error: {e}')
+
+        await asyncio.sleep(RPS)
 
 
 if __name__ == "__main__":
