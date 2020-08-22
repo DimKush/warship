@@ -72,6 +72,11 @@ class Geometry:
     def get_segments(bounds):
         return [(bounds[i], bounds[(i + 1) % len(bounds)]) for i in range(0, len(bounds))]
 
+    @property
+    def bounding_box_int(self):
+        return int(self.bounding_box[0]), int(self.bounding_box[1]), \
+               int(self.bounding_box[2]), int(self.bounding_box[3])
+
 
 class GeometryLine(Geometry):
     def __init__(self, x: float, y: float, r: float):
