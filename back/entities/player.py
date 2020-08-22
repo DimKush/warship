@@ -33,7 +33,7 @@ class Player(Entity):
                 bullet = ee.Bullet(self.x, self.y, self.geometry.angle_motion.angle_current, self)
                 self.shot_counter = 1 / self.ship_model.shot_speed
                 return bullet
-        elif self.shot_counter > 0:
+        else:
             self.shot_counter -= time_delta
         return None
 
