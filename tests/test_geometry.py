@@ -70,7 +70,8 @@ class TestGeometry(TestCase):
         self.test_geometry_line.bounds = [[1, 1], [2, 3], [3, -1]]
         self.test_geometry_line.eval_true_bounding_box()
         self.test_geometry_line.next(3)
-        self.test_geometry_line.bounds = list(map(lambda x: [round(x[0], 2), round(x[1], 2)], self.test_geometry_line.bounds))
+        self.test_geometry_line.bounds = list(
+            map(lambda x: [round(x[0], 2), round(x[1], 2)], self.test_geometry_line.bounds))
         self.test_geometry_line.bounding_box = list(map(lambda x: round(x, 2), self.test_geometry_line.bounding_box))
         self.assertEqual([[-2.0, 1.0], [-1.0, 3.0], [0.0, -1.0]], self.test_geometry_line.bounds)
         self.assertEqual([-2.0, -1.0, 0.0, 3.0], self.test_geometry_line.bounding_box)
@@ -78,5 +79,11 @@ class TestGeometry(TestCase):
     def test_rebuild_geometry_line(self):
         self.test_geometry_line.bounds = [[0, 3], [1, -1], [-1, -1]]
         self.test_geometry_line.rebuild()
-        self.test_geometry_line.bounds = list(map(lambda x: [round(x[0], 2), round(x[1], 2)], self.test_geometry_line.bounds))
+        self.test_geometry_line.bounds = list(
+            map(lambda x: [round(x[0], 2), round(x[1], 2)], self.test_geometry_line.bounds))
         self.assertEqual([[0.0, 1.0], [4.0, 2.0], [4.0, 0.0]], self.test_geometry_line.bounds)
+
+    def test_bounding_box_int(self):
+        self.test_geometry.bounds = [[1, 0], [2, 3], [-1, -1]]
+        self.test_geometry.eval_true_bounding_box()
+        self.assertEqual((-1, -1, 2, 3), self.test_geometry.bounding_box_int)

@@ -262,6 +262,7 @@ function evaluate_movement(event, action_flag) {
 
 function handle_message(event, render, animation) {
     let data = JSON.parse(event.data);
+
     if (typeof data.player_id === "string") {
         player_id = data.player_id;
     } else {
@@ -271,6 +272,18 @@ function handle_message(event, render, animation) {
         if (self_object) {
             player_score = self_object.score;
         }
+        data.entities.forEach(elem => {
+            if (elem.c) {
+                let coords = elem.c.split(' ')
+                elem.x = coords[0]
+                elem.y = coords[1]
+                elem.r = coords[2]
+            } else {
+                elem.x = 0
+                elem.y = 0
+                elem.r = 0
+            }
+        })
         animation.add_events(data.effects)
         render.render_screen(self_object, data.entities, animation.get_current_frames(), data.frame_time);
     }
