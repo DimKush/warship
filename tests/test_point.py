@@ -76,3 +76,8 @@ class TestAngleMovement(TestCase):
         self.amov.set_next(6)
         self.assertEqual(-100, self.amov.curr)
         self.assertEqual(-1010, self.amov.angle_current)
+
+    def test_set_next_incorrect_moving(self):
+        self.amov.moving = -10
+        self.amov.set_next(10)
+        self.assertEqual(50, self.amov.curr)

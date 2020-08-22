@@ -18,12 +18,16 @@ class Movement:
                     self.curr += deltate
                 else:
                     self.curr = 0
+            else:
+                pass
         elif self.moving == 1:
             new_curr = self.curr + self.moving * deltate
             self.curr = self.max if new_curr >= self.max else new_curr
         elif self.moving == -1:
             new_curr = self.curr + self.moving * deltate
             self.curr = -self.max if new_curr <= -self.max else new_curr
+        else:
+            pass
 
     @property
     def current(self):
@@ -47,12 +51,16 @@ class AngleMovement(Movement):
                     self.curr -= deltate
                 elif self.curr < 0:
                     self.curr += deltate
+                else:
+                    pass
         elif self.moving == 1:
             new_curr = self.curr + self.moving * deltate
             self.curr = self.max if new_curr >= self.max else new_curr
         elif self.moving == -1:
             new_curr = self.curr + self.moving * deltate
             self.curr = -self.max if new_curr <= -self.max else new_curr
+        else:
+            pass
         self.angle_curr += self.curr * time
 
     @property
