@@ -37,6 +37,7 @@ class Test(TestCase):
         self.assertIsNone(self.game.get_state())
 
     def test_get_state(self):
+        self.maxDiff = None
         exp_res = {'effects': [], 'entities': [
             {'aabb': (3000, 0, 3000, 3000), 'context_id': 'frame_east', 'type': 'Statics'},
             {'aabb': (0, 0, 3000, 0), 'context_id': 'frame_north', 'type': 'Statics'},
