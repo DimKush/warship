@@ -8,3 +8,11 @@ def round_list(input_list, digit):
             for sublist in input_list:
                 res.append([round(x, digit) for x in sublist])
             return res
+
+
+def remove_id(elem):
+    if elem.get('id'):
+        elem.pop('id')
+        elem.pop('c')
+        elem.pop('aabb')
+    return elem
