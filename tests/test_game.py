@@ -61,4 +61,7 @@ class Test(TestCase):
         self.game.exec_step(0.1)
         act_res = self.game.get_state()
         act_res['entities'] = list(map(remove_id, act_res['entities']))
+
+        exp_res['entities'].sort(key=lambda x: x['context_id'])
+        act_res['entities'].sort(key=lambda x: x['context_id'])
         self.assertEqual(exp_res, act_res)
