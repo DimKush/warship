@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosedOK
 
@@ -102,6 +102,11 @@ async def load_data(request: Request):
     return JSONResponse(content=data)
 
 
+@app.get("/favicon.ico")
+async def favicon(request: Request):
+    return RedirectResponse("/static/img/favicon.ico")
+
+
 @app.on_event("startup")
 async def startup_event():
     app.state.gl.init_scene()
@@ -134,7 +139,7 @@ async def response_for_all():
         last = curr
 
         curr_state = app.state.gl.get_state()
-        if curr_state != {}:
+        if curr_state:
             curr_state['frame_time'] = delta
             for socket in app.state.sockets:
                 try:

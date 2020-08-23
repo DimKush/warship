@@ -9,3 +9,6 @@ exclude_lines =
     ^import
     ^if __name__ == "__main__":
     ^\s+pass$
+    ^import\s
+    ^from\s
+
