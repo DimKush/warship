@@ -24,8 +24,10 @@ class Enemy(ee.Player):
             self.actions.add_to_pool(250, self.set_moving, randint(-1, 1), 1)
             self.actions.add_to_pool(100, self.set_moving, randint(-1, 1), 1)
             self.actions.add_to_pool(1, self.set_moving, 0, 1)
+        elif isinstance(entity, ee.Bullet):
+            pass
         else:
-            print(f'Not described case for type {type(entity)}')
+            print(f'Enemy. Not described case for type {type(entity)}')
 
     def next(self, t: float, others):
         super().next(t, others)
