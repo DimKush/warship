@@ -33,6 +33,6 @@ class Bullet(Entity):
             self.hp = 0
             entity.hp = 0
         else:
-            print(f'Not described case for type {type(entity)}')
+            print(f'Bullet. Not described case for type {type(entity)}')
 
         self.effect_factory.add_to_pool('exp1', self.x, self.y)
