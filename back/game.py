@@ -94,6 +94,7 @@ if __name__ == '__main__':
 
     last = time.time()
     prev_pls = {}
+    print('Core game started.')
     while True:
         curr = time.time()
         delta = float((curr - last))
