@@ -1,1 +1,1 @@
-worker: python back.game.py
+worker: python run.py

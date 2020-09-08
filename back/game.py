@@ -88,7 +88,7 @@ class Game:
             return previous_players, [], []
 
 
-if __name__ == '__main__':
+def main_game():
     game = Game()
     game.init_scene()
 
