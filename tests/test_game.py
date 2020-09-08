@@ -25,16 +25,13 @@ class Test(TestCase):
         self.assertEqual(17, len(self.game.entities))
 
     def test_del_player(self):
-        pl = self.game.add_player()
+        pl = self.game.add_player(uid='my_player_id')
 
-        self.game.del_player(pl)
+        self.game.del_player(pl.id)
         self.assertEqual(16, len(self.game.entities))
 
-        self.game.del_player(Player(0, 0))
+        self.game.del_player('wrong_id')
         self.assertEqual(16, len(self.game.entities))
-
-    def test_get_state_none(self):
-        self.assertIsNone(self.game.get_state())
 
     def test_get_state(self):
         self.maxDiff = None

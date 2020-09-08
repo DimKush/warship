@@ -8,15 +8,9 @@ pytest-cov="*"
 codecov="*"
 
 [packages]
-fastapi = "*"
-httptools = "*"
 uvicorn = "*"
-uvloop = "*"
 gunicorn = "*"
-aioredis = "*"
-aiofiles = "*"
-jinja2 = "*"
-
+redis = "*"
 
 [requires]
 python_version = "3.8"
