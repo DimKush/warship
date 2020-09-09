@@ -73,10 +73,6 @@ class Game:
         if players_state and players_state.get('data') != 1:
             data = json.loads(players_state.get('data').decode())
 
-            for pl in data:
-                if data[pl].get('shooting') == 1:
-                    print(time.time())
-
             current_keys = set(data.keys())
             previous_keys = set(previous_players.keys())
 
@@ -103,7 +99,6 @@ def main_game():
 
         start_processing = time.time()
         prev_pls, new_pl, expire_pl = game.scan_players(previous_players=prev_pls)
-        yy = time.time()
         for pl in new_pl:
             game.add_player(uid=pl.get('player_id'), name=pl.get('player_name'))
         for pl in expire_pl:
@@ -111,7 +106,6 @@ def main_game():
         for pl_id, pl_data in prev_pls.items():
             game.players[pl_id].set_action(pl_data.get('shooting', 0))
             game.players[pl_id].set_moving(pl_data.get('angle', 0), pl_data.get('direction', 0))
-        #print(time.time() - yy)
         game.exec_step(delta)
         game.pubsub.execute_command("PUBLISH", "game-state", json.dumps(game.get_state()))
 
