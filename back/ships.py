@@ -21,7 +21,7 @@ class MainShip(Ship):
     def __init__(self):
         super().__init__()
         self.name = 'predator'
-        self.mobility = 1
+        self.mobility = 2
         self.speed = 120
         self.acceleration = 300
         self.hp = 100

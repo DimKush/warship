@@ -15,7 +15,7 @@ class Player(Entity):
         self.load_body_configuration(self.ship_model.name)
         self.geometry.vector_motion = Movement(delta=self.ship_model.acceleration,
                                                max_value=self.ship_model.speed)
-        self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 4,
+        self.geometry.angle_motion = AngleMovement(delta=self.ship_model.mobility * 2.5,
                                                    max_value=self.ship_model.mobility)
         self.geometry.eval_approximately_bounding_box()
         self.hp = self.ship_model.hp
