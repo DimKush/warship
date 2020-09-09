@@ -1,7 +1,7 @@
 import os
 from os.path import join
 
-RPS = os.environ['RPS'] or 0.02
+RPS = os.environ.get('RPS') or 0.02
 AREA_WIDTH = 3000
 AREA_HEIGHT = 3000
 ENEMY_COUNT = 10
