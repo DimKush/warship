@@ -44,7 +44,8 @@ class Game:
     def del_player(self, player_id):
         if player_id in self.players:
             removed_player = self.players.pop(player_id)
-            self.entities.remove(removed_player)
+            if removed_player in self.entities:
+                self.entities.remove(removed_player)
 
     def exec_step(self, time_delta):
         for entity in self.entities:
@@ -102,6 +103,7 @@ def main_game():
 
         start_processing = time.time()
         prev_pls, new_pl, expire_pl = game.scan_players(previous_players=prev_pls)
+        yy = time.time()
         for pl in new_pl:
             game.add_player(uid=pl.get('player_id'), name=pl.get('player_name'))
         for pl in expire_pl:
@@ -109,7 +111,7 @@ def main_game():
         for pl_id, pl_data in prev_pls.items():
             game.players[pl_id].set_action(pl_data.get('shooting', 0))
             game.players[pl_id].set_moving(pl_data.get('angle', 0), pl_data.get('direction', 0))
-
+        #print(time.time() - yy)
         game.exec_step(delta)
         game.pubsub.execute_command("PUBLISH", "game-state", json.dumps(game.get_state()))
 
