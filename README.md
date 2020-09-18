@@ -4,16 +4,13 @@
 [![codecov](https://codecov.io/gh/dIgor93/warship/branch/master/graph/badge.svg)](https://codecov.io/gh/dIgor93/warship)
 
 ### description
-2d browser multiplayer game for PC about Space and Spaceships 
+Core of 2d browser multiplayer game for PC about Spaceships 
 
-![Image of Space](front/img/demo.png)
-
-
-### where to play
-https://steel-rebbot.herokuapp.com/
+### related repos
+https://github.com/dIgor93/warship-manager
 
 ### for developers
 
-**run(prod):** `gunicorn -w 1 -k uvicorn.workers.UvicornWorker back.main:app `
+**run(prod):** `python ./run.py`
 
-**run(dev):** `python ./back/main.py` 
+**run(dev):** `python ./run.py` 
