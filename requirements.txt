@@ -1,0 +1,5 @@
+pytest-cov
+codecov
+uvicorn
+gunicorn
+redis
