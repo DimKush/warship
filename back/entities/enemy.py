@@ -6,7 +6,7 @@ from back.ships import RenegadeShip
 
 
 class Enemy(ee.Player):
-    def __init__(self, x: float, y: float):
+    def __init__(self, x: float, y: float, prepared_id=None, prepared_name=''):
         super().__init__(x, y, RenegadeShip)
         self.actions = ActionFactory()
         self.set_action(1)
