@@ -7,10 +7,10 @@ from back.ships import Ship, MainShip
 
 
 class Player(Entity):
-    def __init__(self, x: float, y: float, ship_model: Ship = MainShip):
+    def __init__(self, x: float, y: float, ship_model: Ship = MainShip, prepared_id=None, prepared_name=''):
         super().__init__(x, y)
-        self.id = str(uuid.uuid1())[:8]
-        self.name = ''
+        self.id = str(uuid.uuid1())[:8] if prepared_id is None else prepared_id
+        self.name = prepared_name
         self.ship_model = ship_model()
         self.load_body_configuration(self.ship_model.name)
         self.geometry.vector_motion = Movement(delta=self.ship_model.acceleration,
