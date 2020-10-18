@@ -22,20 +22,20 @@ class Game:
 
     def init_scene(self):
         for file in listdir(STATICS_PATH):
-            stx = ee.Statics(0, 0)
+            stx = ee.Statics(0, 0, 0)
             stx.load_body_configuration(file)
             self.entities.append(stx)
 
     def add_player(self, player_type=ee.Player, uid='', name=''):
-        distance = 150
+        distance = 50
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
             bbox = x - distance, y - distance, x + distance, y + distance
             for entity in self.entities:
-                if entity.geometry.box_collision(bbox):
+                if entity.physics.aabb_collision(bbox):
                     break
             else:
-                player = player_type(x, y, prepared_id=uid, prepared_name=name)
+                player = player_type(x, y, 0, prepared_id=uid, prepared_name=name)
                 player.set_effect_factory(self.effect_factory)
                 self.entities.append(player)
                 self.players[player.id] = player
@@ -107,8 +107,11 @@ def main_game():
             game.players[pl_id].set_action(pl_data.get('shooting', 0))
             game.players[pl_id].set_moving(pl_data.get('angle', 0), pl_data.get('direction', 0))
         game.exec_step(delta)
+        ftime = time.time() - start_processing
         game.pubsub.execute_command("PUBLISH", "game-state", json.dumps(game.get_state()))
 
+        if ftime > 0.016:
+            print(ftime)
         delay = RPS - (time.time() - start_processing)
         delay = 0 if delay < 0 else delay
         time.sleep(delay)

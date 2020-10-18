@@ -1,15 +1,15 @@
 from unittest import TestCase
 
-from back.geometry import Geometry, GeometryLine
-from back.point import AngleMovement, Movement
+from back.physics import CasualPhysics, LinePhysics
+from back.movement import AngleMovement, Movement
 
 
 class TestGeometry(TestCase):
     def setUp(self):
-        self.test_geometry = Geometry(1, 2)
+        self.test_geometry = CasualPhysics(1, 2)
         self.test_geometry.angle_motion = AngleMovement(curr_value=100, delta=10, max_value=100, angle_curr=15)
         self.test_geometry.vector_motion = Movement(curr_value=1.0, delta=0.0, max_value=0.0)
-        self.test_geometry_line = GeometryLine(1, 2, 90 * 3.14 / 180)
+        self.test_geometry_line = LinePhysics(1, 2, 90 * 3.14 / 180)
         self.test_geometry_line.vector_motion = Movement(curr_value=1.0, delta=0.0, max_value=0.0)
 
     def test_eval_true_bounding_box_empty(self):

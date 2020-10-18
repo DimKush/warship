@@ -6,8 +6,8 @@ from back.ships import RenegadeShip
 
 
 class Enemy(ee.Player):
-    def __init__(self, x: float, y: float, prepared_id=None, prepared_name=''):
-        super().__init__(x, y, RenegadeShip)
+    def __init__(self, x: float, y: float, r: float, prepared_id=None, prepared_name=''):
+        super().__init__(x, y, r, RenegadeShip)
         self.actions = ActionFactory()
         self.set_action(1)
         self.actions.add_to_pool(150, self.set_moving, randint(-1, 1), 1)

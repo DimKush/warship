@@ -7,7 +7,7 @@ AREA_HEIGHT = 3000
 ENEMY_COUNT = 10
 ENTITY_PATH = 'entities'
 STATICS_PATH = join(ENTITY_PATH, 'statics')
-SHIPS_PATH = join(ENTITY_PATH, 'dynamics')
+MODELS_PATH = join(ENTITY_PATH, 'dynamics')
 
 REDIS_HOST = os.environ.get('REDIS_HOST') or 'localhost'
 REDIS_PORT = os.environ.get('REDIS_PORT') or 6379
