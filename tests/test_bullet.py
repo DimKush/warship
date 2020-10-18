@@ -16,14 +16,14 @@ class Test(TestCase):
         ent_other = Bullet(-12, 10, 0, self.pl)
         self.ent.next(0.02, [ent_other])
         self.assertEqual(1, self.ent.hp)
-        self.assertEqual([[26.0, 3.0], [-9.0, 3.0]], round_list(self.ent.geometry.bounds, 0))
+        self.assertEqual([[26.0, 3.0], [-9.0, 3.0]], round_list(self.ent.physics.bounds, 0))
 
     def test_action_on_collision_true(self):
         ent_other = Bullet(-5, 10, 0, self.pl)
-        old_pos = self.ent.geometry.bounds[:]
+        old_pos = self.ent.physics.bounds[:]
         self.ent.next(0.02, [ent_other])
         self.assertEqual(0, self.ent.hp)
-        self.assertEqual(old_pos, self.ent.geometry.bounds)
+        self.assertEqual(old_pos, self.ent.physics.bounds)
 
     def test_action_on_collision_with_statics(self):
         ent_other = Statics(0, 0)
