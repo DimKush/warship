@@ -2,7 +2,6 @@ import uuid
 
 import back.entities as ee
 from back.entities.entity import Entity
-from back.movement import Movement
 from back.ships import Ship, MainShip
 
 
@@ -14,8 +13,11 @@ class Player(Entity):
         self.ship_model = ship_model()
         self.physics.load_points(self.ship_model.name)
         self.load_body_configuration(self.ship_model.name)
-        self.physics.vector_motion = Movement(delta=self.ship_model.acceleration, max_value=self.ship_model.speed)
-        self.physics.angle_motion = Movement(delta=self.ship_model.mobility * 2.5, max_value=self.ship_model.mobility)
+
+        self.physics.vector_motion.set_delta(self.ship_model.acceleration)
+        self.physics.vector_motion.set_max_current(self.ship_model.speed)
+        self.physics.angle_motion.set_delta(self.ship_model.mobility)
+
         self.physics.eval_approximately_aabb()
         self.hp = self.ship_model.hp
         self.hp_max = self.ship_model.hp_max

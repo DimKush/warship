@@ -6,7 +6,7 @@ from os.path import join
 from typing import List
 
 from back.config import MODELS_PATH
-from back.movement import Movement
+from back.movement import UniformlyMotion, ConstMotion
 
 
 class Physics(ABC):
@@ -67,11 +67,12 @@ class Physics(ABC):
                     return True
         return False
 
+
 class CasualPhysics(Physics):
     def __init__(self, x: float, y: float, r: float):
         super().__init__(x, y, r)
-        self.angle_motion = Movement()
-        self.vector_motion = Movement()
+        self.angle_motion = ConstMotion()
+        self.vector_motion = UniformlyMotion()
 
     def update(self, delta_time):
         self._last_delta_time = delta_time
@@ -90,7 +91,6 @@ class CasualPhysics(Physics):
             point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
                        (point[0] - self.x) * sin(self.r * delta_time) + y_delta
             point[0] = tmp_x
-
         self.x -= x_delta
         self.y += y_delta
 
@@ -99,17 +99,40 @@ class CasualPhysics(Physics):
         self.aabb[1] += y_delta
         self.aabb[3] += y_delta
 
+    def rollback(self):
+        delta_time = -1 * self._last_delta_time
 
+        r_delta = self.angle_motion.current * delta_time
+        self.r += r_delta
+
+        x_delta = self.vector_motion.current * sin(self.r) * delta_time
+        y_delta = self.vector_motion.current * cos(self.r) * delta_time
+
+        for point in self.bounds:
+            tmp_x = (point[0] - self.x) * cos(self.r * delta_time) + self.x - \
+                    (point[1] - self.y) * sin(self.r * delta_time) - x_delta
+            point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
+                       (point[0] - self.x) * sin(self.r * delta_time) + y_delta
+            point[0] = tmp_x
+        self.x -= x_delta
+        self.y += y_delta
+
+        self.aabb[0] -= x_delta
+        self.aabb[2] -= x_delta
+        self.aabb[1] += y_delta
+        self.aabb[3] += y_delta
+
+        self.vector_motion._current *= -1
+        self.angle_motion._current *= -1
 
 
 class LinePhysics(Physics):
     def __init__(self, x: float, y: float, r: float):
         super().__init__(x, y, r)
-        self.vector_motion = Movement()
+        self.vector_motion = ConstMotion(moving=1)
 
     def set_move_speed(self, speed):
-        self.vector_motion.current = speed
-        self.vector_motion.max = speed
+        self.vector_motion.set_delta(speed)
 
     def update(self, delta_time):
         self.vector_motion.update(delta_time)
