@@ -10,7 +10,7 @@ class Entity:
     def __init__(self, x: float, y: float, r: float):
         self.id = 0
         self.context_id = ''
-        self.physics: Physics = CasualPhysics(x, y, r)
+        self.physics: CasualPhysics = CasualPhysics(x, y, r)
         self.hp = 1
         self.effect_factory = None
 
@@ -42,8 +42,8 @@ class Entity:
         pass
 
     def set_moving(self, angle_moving, speed_moving):
-        self.physics.angle_motion.moving = angle_moving
-        self.physics.vector_motion.moving = speed_moving
+        self.physics.angle_motion.set_moving(angle_moving)
+        self.physics.vector_motion.set_moving(speed_moving)
 
     def set_action(self, flag: int):
         pass

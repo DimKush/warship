@@ -19,6 +19,6 @@ class Test(TestCase):
 
     def test_set_moving(self):
         self.ent.set_moving(1, 1)
-        self.assertEqual(1, self.ent.physics.angle_motion.moving)
-        self.assertEqual(1, self.ent.physics.vector_motion.moving)
+        self.assertEqual(1, self.ent.physics.angle_motion._moving)
+        self.assertEqual(1, self.ent.physics.vector_motion._moving)
 
