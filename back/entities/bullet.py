@@ -1,22 +1,22 @@
 from back.effects import EffectFactory
 from back.entities.entity import Entity
-from back.geometry import GeometryLine
-from back.point import Movement
+from back.physics import LinePhysics
 
 
 class Bullet(Entity):
     def __init__(self, x: float, y: float, r: float, player_owner):
-        super().__init__(x, y)
+        super().__init__(x, y, r)
         self.id = 1
         self.owner = player_owner
-        self.damage = player_owner.ship_model.bullet_damage
-        self.effect_factory: EffectFactory = player_owner.effect_factory
-        self.geometry = GeometryLine(x, y, r)
+        self.physics = LinePhysics(x, y, r)
+        self.physics.load_points(f'bullet_{player_owner.ship_model.name}')
         self.load_body_configuration(f'bullet_{player_owner.ship_model.name}')
-        self.geometry.rebuild()
-        self.geometry.eval_true_bounding_box()
-        self.geometry.vector_motion = Movement(curr_value=player_owner.ship_model.bullet_speed,
-                                               max_value=player_owner.ship_model.bullet_speed)
+        self.physics.set_move_speed(player_owner.ship_model.bullet_speed)
+        self.effect_factory: EffectFactory = player_owner.effect_factory
+
+    @property
+    def damage(self):
+        return self.owner.ship_model.bullet_damage
 
     def action_on_collision(self, entity):
         from back.entities import Bullet, Statics, Player
