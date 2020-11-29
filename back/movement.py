@@ -18,6 +18,9 @@ class DeltaBehaviour(ABC):
         else:
             return ValueError(f'moving parameter must be an one of {MOVING}')
 
+    def switch_current(self):
+        self._current *= -1
+
     @property
     def current(self):
         return self._current

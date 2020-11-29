@@ -1,5 +1,5 @@
 import json
-from abc import ABC
+from abc import ABC, abstractmethod
 from math import sin, cos
 from os.path import join
 
@@ -18,7 +18,12 @@ class Physics(ABC):
         self.aabb = [0, 0, 0, 0]
         self._last_delta_time = 0
 
+    @abstractmethod
     def update(self, delta_time):
+        pass
+
+    @abstractmethod
+    def rollback(self):
         pass
 
     @property
@@ -50,12 +55,9 @@ class Physics(ABC):
     def eval_approximately_aabb(self, radius=40):
         self.aabb = [self.x - radius, self.y - radius, self.x + radius, self.y + radius]
 
-    def rollback(self):
-        self.update(-1 * self._last_delta_time)
-
     def detail_collision(self, bounds):
-        def vector_multiple(p0, p1, p2):
-            return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1])
+        def vector_multiple(_p0, _p1, _p2):
+            return (_p1[0] - _p0[0]) * (_p2[1] - _p0[1]) - (_p2[0] - _p0[0]) * (_p1[1] - _p0[1])
 
         def get_segments(_bounds):
             return [(_bounds[i], _bounds[(i + 1) % len(_bounds)]) for i in range(0, len(_bounds))]
@@ -74,56 +76,39 @@ class CasualPhysics(Physics):
         self.angle_motion = ConstMotion()
         self.vector_motion = UniformlyMotion()
 
+    def calculate_coords(self, delta_time):
+        r_delta = self.angle_motion.current * delta_time
+        self.r += r_delta
+
+        x_delta = self.vector_motion.current * sin(self.r) * delta_time
+        y_delta = self.vector_motion.current * cos(self.r) * delta_time
+
+        for point in self.bounds:
+            tmp_x = (point[0] - self.x) * cos(self.r * delta_time) + self.x - \
+                    (point[1] - self.y) * sin(self.r * delta_time) - x_delta
+            point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
+                       (point[0] - self.x) * sin(self.r * delta_time) + y_delta
+            point[0] = tmp_x
+        self.x -= x_delta
+        self.y += y_delta
+
+        self.aabb[0] -= x_delta
+        self.aabb[2] -= x_delta
+        self.aabb[1] += y_delta
+        self.aabb[3] += y_delta
+
     def update(self, delta_time):
         self._last_delta_time = delta_time
         self.angle_motion.update(delta_time)
         self.vector_motion.update(delta_time)
 
-        r_delta = self.angle_motion.current * delta_time
-        self.r += r_delta
-
-        x_delta = self.vector_motion.current * sin(self.r) * delta_time
-        y_delta = self.vector_motion.current * cos(self.r) * delta_time
-
-        for point in self.bounds:
-            tmp_x = (point[0] - self.x) * cos(self.r * delta_time) + self.x - \
-                    (point[1] - self.y) * sin(self.r * delta_time) - x_delta
-            point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
-                       (point[0] - self.x) * sin(self.r * delta_time) + y_delta
-            point[0] = tmp_x
-        self.x -= x_delta
-        self.y += y_delta
-
-        self.aabb[0] -= x_delta
-        self.aabb[2] -= x_delta
-        self.aabb[1] += y_delta
-        self.aabb[3] += y_delta
+        self.calculate_coords(delta_time=delta_time)
 
     def rollback(self):
-        delta_time = -1 * self._last_delta_time
+        self.calculate_coords(delta_time=-1 * self._last_delta_time)
 
-        r_delta = self.angle_motion.current * delta_time
-        self.r += r_delta
-
-        x_delta = self.vector_motion.current * sin(self.r) * delta_time
-        y_delta = self.vector_motion.current * cos(self.r) * delta_time
-
-        for point in self.bounds:
-            tmp_x = (point[0] - self.x) * cos(self.r * delta_time) + self.x - \
-                    (point[1] - self.y) * sin(self.r * delta_time) - x_delta
-            point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
-                       (point[0] - self.x) * sin(self.r * delta_time) + y_delta
-            point[0] = tmp_x
-        self.x -= x_delta
-        self.y += y_delta
-
-        self.aabb[0] -= x_delta
-        self.aabb[2] -= x_delta
-        self.aabb[1] += y_delta
-        self.aabb[3] += y_delta
-
-        self.vector_motion._current *= -1
-        self.angle_motion._current *= -1
+        self.vector_motion.switch_current()
+        self.angle_motion.switch_current()
 
 
 class LinePhysics(Physics):
@@ -151,6 +136,9 @@ class LinePhysics(Physics):
 
         self.x -= x_delta
         self.y += y_delta
+
+    def rollback(self):
+        self.update(-1 * self._last_delta_time)
 
     def load_points(self, file_name: str):
         super(LinePhysics, self).load_points(file_name=file_name)
