@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from back.entities import Enemy, Player, Statics
+from back.entities import Enemy, SpaceShip, Statics
 
 
 class TestEnemy(TestCase):
@@ -9,7 +9,7 @@ class TestEnemy(TestCase):
 
     def test_action_on_collision_with_player(self):
         prev_hp = self.enemy.hp
-        self.enemy.action_on_collision(Player(0, 0))
+        self.enemy.action_on_collision(SpaceShip(0, 0))
         self.assertEqual(prev_hp, self.enemy.hp)
 
     def test_action_on_collision_with_statics(self):

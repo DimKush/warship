@@ -1,18 +1,13 @@
-import json
-from os.path import join
-
-from back.config import MODELS_PATH
-from back.effects import EffectFactory
-from back.physics import CasualPhysics, Physics
+from back.physics import CasualPhysics
+from back.storage import storage
 
 
 class Entity:
-    def __init__(self, x: float, y: float, r: float):
+    def __init__(self, x: float, y: float, r: float, context: str):
         self.id = 0
-        self.context_id = ''
-        self.physics: CasualPhysics = CasualPhysics(x, y, r)
         self.hp = 1
-        self.effect_factory = None
+        self.context_id = storage.get(context, {}).get('context_id')
+        self.physics: CasualPhysics = CasualPhysics(x, y, r)
 
     @property
     def x(self):
@@ -26,33 +21,19 @@ class Entity:
     def r(self):
         return self.physics.r
 
-    def next(self, t: float, others):
-        from back.entities.bullet import Bullet
+    def next(self, t: float):
         self.physics.update(t)
-
-        for entity in others:
-            if entity != self:
-                if not (isinstance(self, Bullet) and self.owner.id == entity.id) and \
-                        not (isinstance(entity, Bullet) and entity.owner.id == self.id):
-                    if self.physics.aabb_collision(entity.physics.aabb):
-                        if self.physics.detail_collision(entity.physics.bounds):
-                            self.action_on_collision(entity)
 
     def action_on_collision(self, entity):
         pass
 
-    def set_moving(self, angle_moving, speed_moving):
-        self.physics.angle_motion.set_moving(angle_moving)
-        self.physics.vector_motion.set_moving(speed_moving)
-
-    def set_action(self, flag: int):
-        pass
-
-    def do_action(self, time_delta):
-        pass
-
-    def set_effect_factory(self, ef: EffectFactory):
-        self.effect_factory = ef
+    def set_moving(self, axis, direction):
+        if axis == 'rotate':
+            self.physics.angle_motion.set_moving(direction)
+        elif axis == 'direction':
+            self.physics.vector_motion.set_moving(direction)
+        else:
+            pass
 
     def get_info(self):
         return {'id': self.id,
@@ -61,9 +42,3 @@ class Entity:
                 'aabb': self.physics.aabb_int,
                 'context_id': self.context_id
                 }
-
-    def load_body_configuration(self, file_name: str):
-        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
-        with open(f'{join(MODELS_PATH, file_name)}', 'r') as f:
-            obj = json.loads(f.read())
-            self.context_id = obj['context_id']

@@ -1,12 +1,8 @@
-import json
 from abc import ABC, abstractmethod
 from math import sin, cos
-from os.path import join
 
-from typing import List
-
-from back.config import MODELS_PATH
 from back.movement import UniformlyMotion, ConstMotion
+from back.storage import storage
 
 
 class Physics(ABC):
@@ -30,20 +26,17 @@ class Physics(ABC):
     def aabb_int(self):
         return int(self.aabb[0]), int(self.aabb[1]), int(self.aabb[2]), int(self.aabb[3])
 
-    def load_points(self, file_name: str):
-        file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
-        with open(f'{join(MODELS_PATH, file_name)}', 'r') as f:
-            obj = json.loads(f.read())
-            self.bounds = [[p['x'] + obj['offset_x'] + self.x, p['y'] + obj['offset_y'] + self.y]
-                           for p in obj['points']]
-        self.eval_natural_aabb()
+    def load_points(self, context: str):
+        obj = storage[context]
+        self.bounds = [[p['x'] + obj['offset_x'] + self.x, p['y'] + obj['offset_y'] + self.y]
+                       for p in obj['points']]
 
-    def aabb_collision(self, target_aabb: List[float], ):
-        x1, y1, x2, y2 = self.aabb
-        x3, y3, x4, y4 = target_aabb
-        if (x2 >= x3) and (x4 >= x1) and (y2 >= y3) and (y4 >= y1):
-            return True
-        return False
+        for point in self.bounds:
+            tmp_x = self.x + (point[0] - self.x) * cos(self.r) - (point[1] - self.y) * sin(self.r)
+            point[1] = self.y + (point[1] - self.y) * cos(self.r) + (point[0] - self.x) * sin(self.r)
+            point[0] = tmp_x
+
+        self.eval_natural_aabb()
 
     def eval_natural_aabb(self):
         min_x = min(self.bounds, key=lambda a: a[0])[0]
@@ -54,20 +47,6 @@ class Physics(ABC):
 
     def eval_approximately_aabb(self, radius=40):
         self.aabb = [self.x - radius, self.y - radius, self.x + radius, self.y + radius]
-
-    def detail_collision(self, bounds):
-        def vector_multiple(_p0, _p1, _p2):
-            return (_p1[0] - _p0[0]) * (_p2[1] - _p0[1]) - (_p2[0] - _p0[0]) * (_p1[1] - _p0[1])
-
-        def get_segments(_bounds):
-            return [(_bounds[i], _bounds[(i + 1) % len(_bounds)]) for i in range(0, len(_bounds))]
-
-        for p1, p2 in get_segments(self.bounds):
-            for p3, p4 in get_segments(bounds):
-                if vector_multiple(p1, p3, p2) * vector_multiple(p1, p4, p2) <= 0 and \
-                        vector_multiple(p3, p1, p4) * vector_multiple(p3, p2, p4) <= 0:
-                    return True
-        return False
 
 
 class CasualPhysics(Physics):
@@ -139,13 +118,3 @@ class LinePhysics(Physics):
 
     def rollback(self):
         self.update(-1 * self._last_delta_time)
-
-    def load_points(self, file_name: str):
-        super(LinePhysics, self).load_points(file_name=file_name)
-
-        for point in self.bounds:
-            tmp_x = self.x + (point[0] - self.x) * cos(self.r) - (point[1] - self.y) * sin(self.r)
-            point[1] = self.y + (point[1] - self.y) * cos(self.r) + (point[0] - self.x) * sin(self.r)
-            point[0] = tmp_x
-
-        self.eval_natural_aabb()

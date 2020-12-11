@@ -2,13 +2,13 @@ from math import pi
 from unittest import TestCase
 
 from back.effects import EffectFactory
-from back.entities import Bullet, Player, Statics
+from back.entities import Bullet, SpaceShip, Statics
 from tests.helpers import round_list
 
 
 class Test(TestCase):
     def setUp(self):
-        self.pl = Player(0, 0)
+        self.pl = SpaceShip(0, 0)
         self.pl.set_effect_factory(EffectFactory())
         self.ent = Bullet(1, 2, 90 * pi / 180, self.pl)
 
@@ -35,7 +35,7 @@ class Test(TestCase):
         self.assertEqual(983, ent_other.hp)
 
     def test_action_on_collision_with_player(self):
-        ent_other = Player(0, 0)
+        ent_other = SpaceShip(0, 0)
         ent_other.hp = 100
         self.ent.damage = 99
         self.ent.owner.score = 1
@@ -46,7 +46,7 @@ class Test(TestCase):
         self.assertEqual(11, self.ent.owner.score)
 
     def test_action_on_collision_with_player_destroy(self):
-        ent_other = Player(1, 1)
+        ent_other = SpaceShip(1, 1)
         ent_other.hp = 1
         self.ent.damage = 100
         self.ent.owner.score = 1
