@@ -1,6 +1,6 @@
 import time
 
-from back.config import STATICS_PATH, RPS, PLAYERS_COUNT
+import back.config as config
 from back.effects import EffectFactory
 from back.endpoint import Endpoint
 from back.entities import SpaceShip
@@ -18,7 +18,7 @@ class Game:
         self.effects = EffectFactory()
 
     def init_scene(self):
-        self.em.load_statics(STATICS_PATH)
+        self.em.load_statics(config.STATICS_PATH)
 
     def exec_step(self, time_delta):
         self.scheduler.exec_all()
@@ -26,8 +26,11 @@ class Game:
         self.phs.collision_computer()
         self.em.remove_all_dead()
 
-        if self.em.player_count < PLAYERS_COUNT:
+        if self.em.bot_count < config.BOTS_COUNT:
             self.em.create_bot()
+
+        for bot_obj in self.em.bots.values():
+            self.scheduler.bot_ai(bot_obj)
 
     def get_state(self):
         return {
@@ -52,16 +55,19 @@ class Game:
                 self.em.remove_ship(player)
 
             for pl_id, pl_data in curr_step_players.items():
-                player_obj: SpaceShip = self.em.players[pl_id]
-                if pl_data.get('shooting'):
-                    self.scheduler.add(player_obj, SpaceShip.shooting, delta)
-                self.scheduler.add(player_obj, SpaceShip.set_moving, 'rotate', pl_data.get('angle', 0))
-                self.scheduler.add(player_obj, SpaceShip.set_moving, 'direction', pl_data.get('direction', 0))
+                player_obj: SpaceShip = self.em.players.get(pl_id)
+                if player_obj:
+                    if pl_data.get('shooting'):
+                        self.scheduler.add(player_obj, SpaceShip.shooting, delta)
+                    self.scheduler.add(player_obj, SpaceShip.set_moving, 'rotate', pl_data.get('angle', 0))
+                    self.scheduler.add(player_obj, SpaceShip.set_moving, 'direction', pl_data.get('direction', 0))
+                else:
+                    self.em.remove_ship(pl_id)
 
             self.exec_step(delta)
             self.endpoint.send_data_to_player(self.get_state())
 
-            delay = RPS - (time.time() - curr)
+            delay = config.RPS - (time.time() - curr)
             delay = 0 if delay < 0 else delay
             time.sleep(delay)
 

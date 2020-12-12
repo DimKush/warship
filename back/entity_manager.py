@@ -14,23 +14,27 @@ class EntityManager(metaclass=SingletonMeta):
     def __init__(self, physic_system: PhysicsSystem = None):
         self.__physics_system = hasattr(self, 'physics_system') or physic_system
         self.players = {}
+        self.bots = {}
         self.player_count = 0
+        self.bot_count = 0
 
     def create_ship(self, _type, uid, name):
         distance = 50
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
             bbox = x - distance, y - distance, x + distance, y + distance
-            if self.__physics_system.aabb_collision(bbox):
+            if not self.__physics_system.aabb_collision(bbox):
                 if _type == 'player':
                     player = be.SpaceShip(x, y, 0, uid, main_ship, prepared_name=name)
+                    self.player_count += 1
+                    self.players[player.id] = player
                 elif _type == 'bot':
                     player = be.SpaceShip(x, y, 0, uid, renegade_ship, prepared_name=name)
+                    self.bot_count += 1
+                    self.bots[player.id] = player
                 else:
                     raise Exception('Not found ship type')
 
-                self.player_count += 1
-                self.players[player.id] = player
                 self.__physics_system.add(player)
                 return player
 
@@ -38,13 +42,18 @@ class EntityManager(metaclass=SingletonMeta):
         self.create_ship('player', uid, name)
 
     def create_bot(self):
-        self.create_ship('bot', str(uuid.uuid1())[:8], 'noname')
+        self.create_ship('bot', f'bot-{str(uuid.uuid1())[:8]}', 'noname')
 
-    def remove_ship(self, player_id):
-        if player_id in self.players:
-            removed_player = self.players.pop(player_id)
+    def remove_ship(self, _id):
+        removed_ship = None
+        if _id in self.players:
+            removed_ship = self.players.pop(_id)
             self.player_count -= 1
-            self.__physics_system.delete(removed_player)
+        if _id in self.bots:
+            removed_ship = self.bots.pop(_id)
+            self.bot_count -= 1
+        if removed_ship:
+            self.__physics_system.delete(removed_ship)
 
     def create_bullet(self, x, y, r, owner):
         bullet = be.Bullet(x, y, r, owner)
