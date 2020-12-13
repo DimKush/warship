@@ -1,0 +1,26 @@
+{
+  "context_id": "island_001",
+  "type": "island",
+  "hp_max": 100,
+  "texture": "alpha_stub.png",
+  "x": 0,
+  "y": 2544,
+  "offset_x": 0,
+  "offset_y": 0,
+  "width": 0,
+  "height": 0,
+  "points": [
+    {
+      "x": 0,
+      "y": 0
+    },
+    {
+      "x": 704,
+      "y": 456
+    },
+    {
+      "x": 0,
+      "y": 456
+    }
+  ]
+}

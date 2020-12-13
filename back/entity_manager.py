@@ -18,18 +18,20 @@ class EntityManager(metaclass=SingletonMeta):
         self.player_count = 0
         self.bot_count = 0
 
-    def create_ship(self, _type, uid, name):
+    def create_ship(self, _type, uid=None, name=None):
         distance = 50
         while True:
             x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
             bbox = x - distance, y - distance, x + distance, y + distance
             if not self.__physics_system.aabb_collision(bbox):
                 if _type == 'player':
+                    if uid is None or name is None:
+                        raise Exception('Variables uid or(and) name are not defined')
                     player = be.SpaceShip(x, y, 0, uid, main_ship, prepared_name=name)
                     self.player_count += 1
                     self.players[player.id] = player
                 elif _type == 'bot':
-                    player = be.SpaceShip(x, y, 0, uid, renegade_ship, prepared_name=name)
+                    player = be.Bot(x, y)
                     self.bot_count += 1
                     self.bots[player.id] = player
                 else:
@@ -37,12 +39,6 @@ class EntityManager(metaclass=SingletonMeta):
 
                 self.__physics_system.add(player)
                 return player
-
-    def create_player(self, uid, name):
-        self.create_ship('player', uid, name)
-
-    def create_bot(self):
-        self.create_ship('bot', f'bot-{str(uuid.uuid1())[:8]}', 'noname')
 
     def remove_ship(self, _id):
         removed_ship = None

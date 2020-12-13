@@ -24,18 +24,30 @@ class SpaceShip(ee.Entity):
         self.hp = self.ship_model.hp
         self.hp_max = self.ship_model.hp_max
         self.shot_counter = 0
+        self.is_shooting = False
         self.score = 0
 
-    def shooting(self, time_delta):
-        if self.shot_counter <= 0:
-            self.shot_counter = 1 / self.ship_model.shot_speed
-            EntityManager().create_bullet(self.x, self.y, self.r, self)
+    def set_shooting(self, flag):
+        if flag:
+            self.is_shooting = True
         else:
-            self.shot_counter -= time_delta
+            self.is_shooting = False
+
+    def shooting(self, time_delta):
+        if self.is_shooting:
+            if self.shot_counter <= 0:
+                self.shot_counter = 1 / self.ship_model.shot_speed
+                EntityManager().create_bullet(self.x, self.y, self.r, self)
+            else:
+                self.shot_counter -= time_delta
 
     def action_on_collision(self, entity):
         if isinstance(entity, SpaceShip) or isinstance(entity, ee.Statics):
             self.physics.rollback()
+
+    def next(self, t: float):
+        super(SpaceShip, self).next(t)
+        self.shooting(t)
 
     def get_info(self):
         data = super(SpaceShip, self).get_info()

@@ -27,10 +27,7 @@ class Game:
         self.em.remove_all_dead()
 
         if self.em.bot_count < config.BOTS_COUNT:
-            self.em.create_bot()
-
-        for bot_obj in self.em.bots.values():
-            self.scheduler.bot_ai(bot_obj)
+            self.em.create_ship('bot')
 
     def get_state(self):
         return {
@@ -49,7 +46,7 @@ class Game:
             curr_step_players, new_players, expire_players = self.endpoint.scan_players(curr_step_players)
 
             for player in new_players:
-                self.em.create_player(player.get('player_id'), player.get('player_name'))
+                self.em.create_ship('player', player.get('player_id'), player.get('player_name'))
 
             for player in expire_players:
                 self.em.remove_ship(player)
@@ -57,10 +54,13 @@ class Game:
             for pl_id, pl_data in curr_step_players.items():
                 player_obj: SpaceShip = self.em.players.get(pl_id)
                 if player_obj:
-                    if pl_data.get('shooting'):
-                        self.scheduler.add(player_obj, SpaceShip.shooting, delta)
-                    self.scheduler.add(player_obj, SpaceShip.set_moving, 'rotate', pl_data.get('angle', 0))
-                    self.scheduler.add(player_obj, SpaceShip.set_moving, 'direction', pl_data.get('direction', 0))
+                    self.scheduler.add(player_obj,
+                                       SpaceShip.set_shooting,
+                                       pl_data.get('shooting'))
+                    self.scheduler.add(player_obj,
+                                       SpaceShip.set_moving,
+                                       pl_data.get('angle', 0),
+                                       pl_data.get('direction', 0))
                 else:
                     self.em.remove_ship(pl_id)
 

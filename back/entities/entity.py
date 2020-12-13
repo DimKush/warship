@@ -27,13 +27,9 @@ class Entity:
     def action_on_collision(self, entity):
         pass
 
-    def set_moving(self, axis, direction):
-        if axis == 'rotate':
-            self.physics.angle_motion.set_moving(direction)
-        elif axis == 'direction':
-            self.physics.vector_motion.set_moving(direction)
-        else:
-            pass
+    def set_moving(self, rotate, direction):
+        self.physics.angle_motion.set_moving(rotate)
+        self.physics.vector_motion.set_moving(direction)
 
     def get_info(self):
         return {'id': self.id,
