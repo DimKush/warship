@@ -1,0 +1,49 @@
+@startuml
+!pragma teoz true
+skinparam maxMessageSize 150
+
+actor USER #white
+box "Front (async)"
+participant "JS(Веб-страница)" as JS
+participant "FastAPI"
+end box
+participant Redis
+box "Back (sync)"
+participant "Core"
+end box
+
+USER -> JS: Запуск стартовой страницы \n
+JS -> FastAPI
+JS <- FastAPI: index.html
+USER <- JS
+
+USER -> JS: Ввод имени пользователя\n\
+Если не ввели, то форма сама придумает имя
+
+JS -> FastAPI: /game?user_name=имя
+JS <- FastAPI: client.html страница в канвасом и подключенным js-скриптом игры и именем пользователя
+JS <- FastAPI: Ресурсы для рендеринга
+USER <- JS: Страница с игровым полем
+{start} JS <-> FastAPI: веб-сокет для пользователя с сообщением
+note right
+{'name': player_name}
+end note
+FastAPI -> FastAPI: т.к. открылся новый сокет и пришло имя пользователя, то добавляем в список игроков
+group Цикл [~60 раз в секунду]
+
+USER --> JS: Пользовательский ввод
+JS --> FastAPI
+FastAPI --> Redis: Отправляем состояния игроков (какую кнопку какой игрок нажал) : ""**players-state**""
+Redis -> Core: Подписка на канал ""**players-state**""
+Core -> Core: Добаление/удаление игроков. Пересчет состояния игрового мира
+Redis <- Core: Отправка состояния игрового мира : ""**game-state**""
+FastAPI <- Redis: Подписка на канал ""**game-state**""
+JS <- FastAPI: Полученое сообщение без модификации рассылаем по всем открытым веб-сокетам
+JS -> JS: Рендеринг по полученым данным
+USER <- JS:
+{end} JS <-> FastAPI: веб-сокет для пользователя с сообщением
+{start} <-> {end} :
+
+end group
+
+@enduml
