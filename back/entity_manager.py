@@ -1,12 +1,12 @@
-import uuid
 from os import listdir
 from random import randint
 
+from back.entities.bonus import Bonus
 from back.config import AREA_WIDTH, AREA_HEIGHT
 import back.entities as be
 from back.effects import EffectFactory
 from back.physics_system import PhysicsSystem
-from back.ships import main_ship, renegade_ship
+from back.ships import main_ship
 from back.singleton import SingletonMeta
 
 
@@ -55,7 +55,7 @@ class EntityManager(metaclass=SingletonMeta):
         bullet = be.Bullet(x, y, r, owner)
         self.__physics_system.add(bullet)
 
-    def remove_bullet(self, obj):
+    def remove_any(self, obj):
         self.__physics_system.delete(obj)
 
     def create_static(self, file):
@@ -70,13 +70,23 @@ class EntityManager(metaclass=SingletonMeta):
     def remove_all_dead(self):
         for entity in self.__physics_system.entities:
             if entity.hp <= 0:
+                entity.on_dead()
                 EffectFactory().add_to_pool('exp1', entity.x, entity.y)
                 if isinstance(entity, be.SpaceShip):
                     self.remove_ship(entity.id)
                 elif isinstance(entity, be.Bullet):
-                    self.remove_bullet(entity)
+                    self.remove_any(entity)
+                elif isinstance(entity, be.Bonus):
+                    self.remove_any(entity)
                 else:
                     raise Exception('Not expected object')
+
+    def create_bonus(self, x, y):
+        if randint(0, 1):
+            bb = Bonus(x, y, 30, 'bonus_shoot', 50)
+        else:
+            bb = Bonus(x, y, 30, 'bonus_speed', 30)
+        self.__physics_system.add(bb)
 
     def all(self):
         return self.__physics_system.entities

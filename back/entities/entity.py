@@ -38,3 +38,6 @@ class Entity:
                 'aabb': self.physics.aabb_int,
                 'context_id': self.context_id
                 }
+
+    def on_dead(self):
+        pass
