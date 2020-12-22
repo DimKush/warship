@@ -1,117 +1,79 @@
-import json
 import time
-from os import listdir
-from random import randint
-import redis
 
-import back.entities as ee
-from back.config import AREA_WIDTH, AREA_HEIGHT, STATICS_PATH, ENEMY_COUNT, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, RPS
+import back.config as config
 from back.effects import EffectFactory
+from back.endpoint import Endpoint
+from back.entities import SpaceShip
+from back.entity_manager import EntityManager
+from back.physics_system import PhysicsSystem
+from back.scheduler import Scheduler
 
 
 class Game:
     def __init__(self):
-        self.entities = []
-        self.enemies = 0
-        self.players = {}
-        self.effect_factory = EffectFactory()
-        self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, password=REDIS_PASSWORD)
-        self.pubsub = self.redis.pubsub()
-        self.player_pubsub = self.redis.pubsub()
-        self.player_pubsub.psubscribe('players-state')
+        self.endpoint = Endpoint()
+        self.phs = PhysicsSystem()
+        self.em = EntityManager(self.phs)
+        self.scheduler = Scheduler()
+        self.effects = EffectFactory()
 
     def init_scene(self):
-        for file in listdir(STATICS_PATH):
-            stx = ee.Statics(0, 0, 0)
-            stx.load_body_configuration(file)
-            self.entities.append(stx)
-
-    def add_player(self, player_type=ee.Player, uid='', name=''):
-        distance = 50
-        while True:
-            x, y = randint(0, AREA_WIDTH), randint(0, AREA_HEIGHT)
-            bbox = x - distance, y - distance, x + distance, y + distance
-            for entity in self.entities:
-                if entity.physics.aabb_collision(bbox):
-                    break
-            else:
-                player = player_type(x, y, 0, prepared_id=uid, prepared_name=name)
-                player.set_effect_factory(self.effect_factory)
-                self.entities.append(player)
-                self.players[player.id] = player
-                return player
-
-    def del_player(self, player_id):
-        if player_id in self.players:
-            removed_player = self.players.pop(player_id)
-            if removed_player in self.entities:
-                self.entities.remove(removed_player)
+        self.em.load_statics(config.STATICS_PATH)
 
     def exec_step(self, time_delta):
-        for entity in self.entities:
-            entity.next(time_delta, self.entities)
-            if bullet := entity.do_action(time_delta):
-                self.entities.append(bullet)
-            if entity.hp <= 0:
-                if isinstance(entity, ee.Enemy):
-                    self.enemies -= 1
-                self.entities.remove(entity)
+        self.scheduler.exec_all()
+        self.phs.exec_next(time_delta)
+        self.phs.collision_computer()
+        self.em.remove_all_dead()
 
-        if self.enemies < ENEMY_COUNT:
-            self.add_player(ee.Enemy)
-            self.enemies += 1
+        if self.em.bot_count < config.BOTS_COUNT:
+            self.em.create_ship('bot')
 
     def get_state(self):
         return {
-            'entities_count': len(self.entities),
-            'entities': [pl.get_info() for pl in self.entities],
-            'effects': self.effect_factory.get_effects()
+            'entities': [pl.get_info() for pl in self.em.all()],
+            'effects': self.effects.get_effects()
         }
 
-    def scan_players(self, previous_players):
-        players_state = self.player_pubsub.get_message()
-        if players_state and players_state.get('data') != 1:
-            data = json.loads(players_state.get('data').decode())
+    def run(self):
+        last = time.time()
+        curr_step_players = {}
+        while True:
+            curr = time.time()
+            delta = float((curr - last))
+            last = curr
 
-            current_keys = set(data.keys())
-            previous_keys = set(previous_players.keys())
+            curr_step_players, new_players, expire_players = self.endpoint.scan_players(curr_step_players)
 
-            new_players = [data[pl] for pl in (current_keys - previous_keys)]
-            dead_players = [pl for pl in (previous_keys - current_keys)]
-            current_players = {pl: data[pl] for pl in current_keys}
+            for player in new_players:
+                self.em.create_ship('player', player.get('player_id'), player.get('player_name'))
 
-            return current_players, new_players, dead_players
-        else:
-            return previous_players, [], []
+            for player in expire_players:
+                self.em.remove_ship(player)
+
+            for pl_id, pl_data in curr_step_players.items():
+                player_obj: SpaceShip = self.em.players.get(pl_id)
+                if player_obj:
+                    self.scheduler.add(player_obj,
+                                       SpaceShip.set_shooting,
+                                       pl_data.get('shooting'))
+                    self.scheduler.add(player_obj,
+                                       SpaceShip.set_moving,
+                                       pl_data.get('angle', 0),
+                                       pl_data.get('direction', 0))
+                else:
+                    self.em.remove_ship(pl_id)
+
+            self.exec_step(delta)
+            self.endpoint.send_data_to_player(self.get_state())
+
+            delay = config.RPS - (time.time() - curr)
+            delay = 0 if delay < 0 else delay
+            time.sleep(delay)
 
 
 def main_game():
+    print('Core game started.')
     game = Game()
     game.init_scene()
-
-    last = time.time()
-    prev_pls = {}
-    print('Core game started.')
-    while True:
-        curr = time.time()
-        delta = float((curr - last))
-        last = curr
-
-        start_processing = time.time()
-        prev_pls, new_pl, expire_pl = game.scan_players(previous_players=prev_pls)
-        for pl in new_pl:
-            game.add_player(uid=pl.get('player_id'), name=pl.get('player_name'))
-        for pl in expire_pl:
-            game.del_player(pl)
-        for pl_id, pl_data in prev_pls.items():
-            game.players[pl_id].set_action(pl_data.get('shooting', 0))
-            game.players[pl_id].set_moving(pl_data.get('angle', 0), pl_data.get('direction', 0))
-        game.exec_step(delta)
-        ftime = time.time() - start_processing
-        game.pubsub.execute_command("PUBLISH", "game-state", json.dumps(game.get_state()))
-
-        if ftime > 0.016:
-            print(ftime)
-        delay = RPS - (time.time() - start_processing)
-        delay = 0 if delay < 0 else delay
-        time.sleep(delay)
+    game.run()

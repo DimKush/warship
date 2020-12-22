@@ -16,29 +16,28 @@ class Ship:
     bounds: List
 
 
-class MainShip(Ship):
-    def __init__(self):
-        self.name = 'predator'
-        self.mobility = 1
-        self.speed = 200
-        self.acceleration = 150
-        self.hp = 100
-        self.hp_max = 100
-        self.shot_speed = 6
-        self.bounds = []
-        self.bullet_damage = 10
-        self.bullet_speed = 500
+main_ship = Ship(
+    name='predator',
+    mobility=1,
+    speed=200,
+    acceleration=150,
+    hp=100,
+    hp_max=100,
+    shot_speed=6,
+    bounds=[],
+    bullet_damage=10,
+    bullet_speed=500
+)
 
-
-class RenegadeShip(Ship):
-    def __init__(self):
-        self.name = 'predator_renegate'
-        self.mobility = 0.5
-        self.speed = 120
-        self.acceleration = 150
-        self.hp = 100
-        self.hp_max = 100
-        self.shot_speed = 1.8
-        self.bounds = []
-        self.bullet_damage = 10
-        self.bullet_speed = 400
+renegade_ship = Ship(
+    name='predator_renegate',
+    mobility=0.5,
+    speed=120,
+    acceleration=150,
+    hp=100,
+    hp_max=100,
+    shot_speed=1.8,
+    bounds=[],
+    bullet_damage=10,
+    bullet_speed=400
+)

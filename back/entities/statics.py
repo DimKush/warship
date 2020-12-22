@@ -18,7 +18,7 @@ class Statics(Entity):
                                for p in obj['points']]
         self.physics.eval_natural_aabb()
 
-    def next(self, t: float, others):
+    def next(self, t: float):
         pass
 
     def get_info(self):
@@ -26,3 +26,6 @@ class Statics(Entity):
         del data['id']
         del data['c']
         return data
+
+    def do_action(self, asd):
+        pass

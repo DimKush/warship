@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from back.entities import Player, Bullet
+from back.entities import SpaceShip, Bullet
 
 
 class TestPlayer(TestCase):
     def setUp(self):
-        self.pl = Player(40, 40)
+        self.pl = SpaceShip(40, 40)
 
     def test_do_action_not_action(self):
         self.pl.shot_counter = 10
