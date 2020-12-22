@@ -28,6 +28,7 @@ class Bullet(Entity):
             self.hp = 0
             entity.hp = 0
         elif isinstance(entity, ee.Bonus):
-            pass
+            entity.hp -= self.damage
+            self.hp = 0
         else:
             print(f'Bullet. Not described case for type {type(entity)}')

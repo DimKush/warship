@@ -30,6 +30,8 @@ class Bot(be.SpaceShip):
             self.action_recorder.add_to_pool(1, self.set_moving, 0, 1)
         elif isinstance(entity, be.Bullet):
             pass
+        elif isinstance(entity, be.Bonus):
+            pass
         else:
             print(f'Enemy. Not described case for type {type(entity)}')
 

@@ -24,6 +24,9 @@ class BonusSystem:
     def register(self, egg_object: Egg):
         self._bonuses.append(egg_object)
 
+    def get_info(self):
+        return {'bonuses': [x.get_info() for x in self._bonuses]}
+
 
 class SpaceShip(ee.Entity):
     def __init__(self,
@@ -82,6 +85,7 @@ class SpaceShip(ee.Entity):
                            'score': self.score
                            }
         data.update(additional_info)
+        data.update(self.__bonus_system.get_info())
         return data
 
     def on_dead(self):
