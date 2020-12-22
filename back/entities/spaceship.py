@@ -1,7 +1,28 @@
 import back.entities as ee
-from back.entities.bonus import Bonus
+from back.entities.bonus import Bonus, Egg
 from back.entity_manager import EntityManager
 from back.ships import Ship
+
+
+class GunState:
+    def __init__(self, speed):
+        self.is_shooting = False
+        self.shot_counter = 0
+        self.shot_speed = speed
+
+
+class BonusSystem:
+    def __init__(self):
+        self._bonuses = []
+
+    def update(self, delta_time):
+        for bonus in self._bonuses[::]:
+            bonus.update(delta_time)
+            if bonus.expired:
+                self._bonuses.remove(bonus)
+
+    def register(self, egg_object: Egg):
+        self._bonuses.append(egg_object)
 
 
 class SpaceShip(ee.Entity):
@@ -16,42 +37,42 @@ class SpaceShip(ee.Entity):
         self.id = uid
         self.name = prepared_name
         self.ship_model = ship_model
-        self.physics.load_points(self.ship_model.name)
-        self.physics.vector_motion.set_delta(self.ship_model.acceleration)
-        self.physics.vector_motion.set_max_current(self.ship_model.speed)
-        self.physics.angle_motion.set_delta(self.ship_model.mobility)
+        self.physics.load_points(ship_model.name)
+        self.physics.vector_motion.set_delta(ship_model.acceleration)
+        self.physics.vector_motion.set_max_current(ship_model.speed)
+        self.physics.angle_motion.set_delta(ship_model.mobility)
 
         self.physics.eval_approximately_aabb()
-        self.hp = self.ship_model.hp
-        self.hp_max = self.ship_model.hp_max
-        self.shot_counter = 0
-        self.is_shooting = False
+        self.gun_state = GunState(ship_model.shot_speed)
+        self.hp = ship_model.hp
+        self.hp_max = ship_model.hp_max
         self.score = 0
-        self.bonuses = []
+        self.__bonus_system = BonusSystem()
 
     def set_shooting(self, flag):
         if flag:
-            self.is_shooting = True
+            self.gun_state.is_shooting = True
         else:
-            self.is_shooting = False
+            self.gun_state.is_shooting = False
 
     def shooting(self, time_delta):
-        if self.is_shooting:
-            if self.shot_counter <= 0:
-                self.shot_counter = 1 / self.ship_model.shot_speed
+        if self.gun_state.is_shooting:
+            if self.gun_state.shot_counter <= 0:
+                self.gun_state.shot_counter = 1 / self.gun_state.shot_speed
                 EntityManager().create_bullet(self.x, self.y, self.r, self)
             else:
-                self.shot_counter -= time_delta
+                self.gun_state.shot_counter -= time_delta
 
     def action_on_collision(self, entity):
         if isinstance(entity, SpaceShip) or isinstance(entity, ee.Statics):
             self.physics.rollback()
         if isinstance(entity, Bonus):
-            self.apply_bonus(entity)
+            pass
 
     def next(self, t: float):
         super(SpaceShip, self).next(t)
         self.shooting(t)
+        self.__bonus_system.update(t)
 
     def get_info(self):
         data = super(SpaceShip, self).get_info()
@@ -66,18 +87,6 @@ class SpaceShip(ee.Entity):
     def on_dead(self):
         EntityManager().create_bonus(self.x, self.y)
 
-    def apply_bonus(self, bonus_obj: Bonus):
-        bonus = {
-            'duration': bonus_obj.duration,
-            'characteristic': bonus_obj.characteristic
-        }
-        if bonus_obj.characteristic == 'bonus_shoot':
-            self.ship_model.shot_speed = self.ship_model.shot_speed * (1 + bonus_obj.value / 100)
-        elif bonus_obj.characteristic == 'bonus_speed':
-            self.physics.vector_motion.set_delta(self.ship_model.acceleration * 2)
-            self.physics.vector_motion.set_max_current(self.ship_model.speed * (1 + bonus_obj.value / 100))
-            self.physics.angle_motion.set_delta(self.ship_model.mobility * 3)
-        else:
-            pass
-
-        self.bonuses.append(bonus)
+    def reg_bonus(self, egg_obj):
+        egg_obj.set_target(self)
+        self.__bonus_system.register(egg_obj)
