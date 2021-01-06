@@ -1,3 +1,5 @@
+import uuid
+
 from back.entities.entity import Entity
 from back.physics import LinePhysics
 
@@ -6,7 +8,7 @@ class Bullet(Entity):
     def __init__(self, x: float, y: float, r: float, player_owner):
         __resource_name = f'bullet_{player_owner.ship_model.name}'
         super().__init__(x, y, r, __resource_name)
-        self.id = 1
+        self.id = f'bullet-{str(uuid.uuid1())[:8]}'
         self.owner = player_owner
         self.damage = self.owner.ship_model.bullet_damage
         self.physics = LinePhysics(x, y, r)
@@ -28,6 +30,7 @@ class Bullet(Entity):
             self.hp = 0
             entity.hp = 0
         elif isinstance(entity, ee.Bonus):
-            pass
+            entity.hp -= self.damage
+            self.hp = 0
         else:
             print(f'Bullet. Not described case for type {type(entity)}')

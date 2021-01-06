@@ -83,9 +83,9 @@ class EntityManager(metaclass=SingletonMeta):
 
     def create_bonus(self, x, y):
         if randint(0, 1):
-            bb = Bonus(x, y, 30, 'bonus_shoot', 50)
+            bb = Bonus(x, y, 'bonus_shoot')
         else:
-            bb = Bonus(x, y, 30, 'bonus_speed', 30)
+            bb = Bonus(x, y, 'bonus_speed')
         self.__physics_system.add(bb)
 
     def all(self):
