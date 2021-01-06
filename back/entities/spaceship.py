@@ -22,6 +22,10 @@ class BonusSystem:
                 self._bonuses.remove(bonus)
 
     def register(self, egg_object: Egg):
+        for b in self._bonuses:
+            if (b.get_target() == egg_object.get_target()) and (type(b) == type(egg_object)):
+                b.reset_timer()
+                return
         self._bonuses.append(egg_object)
 
     def get_info(self):
