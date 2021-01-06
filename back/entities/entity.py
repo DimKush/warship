@@ -1,10 +1,12 @@
+import uuid
+
 from back.physics import CasualPhysics
 from back.storage import storage
 
 
 class Entity:
     def __init__(self, x: float, y: float, r: float, context: str):
-        self.id = 0
+        self.id = f'entity-{str(uuid.uuid1())[:8]}'
         self.hp = 1
         self.context_id = storage.get(context, {}).get('context_id')
         self.physics: CasualPhysics = CasualPhysics(x, y, r)

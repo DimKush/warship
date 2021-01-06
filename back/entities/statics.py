@@ -1,4 +1,5 @@
 import json
+import uuid
 from os.path import join
 
 from back.config import STATICS_PATH
@@ -6,6 +7,10 @@ from back.entities.entity import Entity
 
 
 class Statics(Entity):
+    def __init__(self, x, y, r, ctx):
+        super(Statics, self).__init__(x, y, r, ctx)
+        self.id = f'static-{str(uuid.uuid1())[:8]}'
+
     def load_body_configuration(self, file_name: str = None):
         file_name = file_name if file_name.endswith('.json') else f'{file_name}.json'
         f = open(f'{join(STATICS_PATH, file_name)}', 'r')
@@ -20,12 +25,6 @@ class Statics(Entity):
 
     def next(self, t: float):
         pass
-
-    def get_info(self):
-        data = super(Statics, self).get_info()
-        del data['id']
-        del data['c']
-        return data
 
     def do_action(self, asd):
         pass
