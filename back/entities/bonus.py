@@ -19,6 +19,12 @@ class Egg(ABC):
     def set_target(self, target):
         self._target = target
 
+    def get_target(self):
+        return self._target
+
+    def reset_timer(self):
+        self._timer = self._full_timer
+
     def update(self, delta_time):
         if not self._applied:
             self._applied = True
@@ -65,8 +71,8 @@ class FasterEgg(Egg):
 
     def _apply(self):
         self._target.physics.vector_motion.set_delta(self._target.ship_model.acceleration * 2)
-        self._target.physics.vector_motion.set_max_current(self._target.ship_model.speed * 2)
-        self._target.physics.angle_motion.set_delta(self._target.ship_model.mobility * 3)
+        self._target.physics.vector_motion.set_max_current(self._target.ship_model.speed * 1.3)
+        self._target.physics.angle_motion.set_delta(self._target.ship_model.mobility * 2)
 
     def _unapply(self):
         self._target.physics.vector_motion.set_delta(self._target.ship_model.acceleration)
