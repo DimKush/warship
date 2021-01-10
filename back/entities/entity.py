@@ -37,7 +37,6 @@ class Entity:
         return {'id': self.id,
                 'type': type(self).__name__,
                 'c': f'{int(self.x)} {int(self.y)} {round(self.r, 2)}',
-                'aabb': self.physics.aabb_int,
                 'context_id': self.context_id
                 }
 

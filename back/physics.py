@@ -63,10 +63,10 @@ class CasualPhysics(Physics):
         y_delta = self.vector_motion.current * cos(self.r) * delta_time
 
         for point in self.bounds:
-            tmp_x = (point[0] - self.x) * cos(self.r * delta_time) + self.x - \
-                    (point[1] - self.y) * sin(self.r * delta_time) - x_delta
-            point[1] = (point[1] - self.y) * cos(self.r * delta_time) + self.y + \
-                       (point[0] - self.x) * sin(self.r * delta_time) + y_delta
+            tmp_x = (point[0] - self.x) * cos(r_delta) + self.x - \
+                    (point[1] - self.y) * sin(r_delta) - x_delta
+            point[1] = (point[1] - self.y) * cos(r_delta) + self.y + \
+                       (point[0] - self.x) * sin(r_delta) + y_delta
             point[0] = tmp_x
         self.x -= x_delta
         self.y += y_delta
