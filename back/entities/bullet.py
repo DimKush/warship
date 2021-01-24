@@ -8,7 +8,7 @@ class Bullet(Entity):
     def __init__(self, x: float, y: float, r: float, player_owner):
         __resource_name = f'bullet_{player_owner.ship_model.name}'
         super().__init__(x, y, r, __resource_name)
-        self.id = f'bullet-{str(uuid.uuid1())[:8]}'
+        self.id = f'bullet_{player_owner.ship_model.name}-{str(uuid.uuid1())[:8]}'
         self.owner = player_owner
         self.damage = self.owner.ship_model.bullet_damage
         self.physics = LinePhysics(x, y, r)
